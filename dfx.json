@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "hello": {
+      "main": "backend/service/hello.mo"
+    },
+    "frontend": {
+      "dependencies": ["hello"],
+      "frontend": {
+        "entrypoint": "build/static/chunks/pages/index.html"
+      },
+      "source": ["build"],
+      "type": "assets"
+    }
+  },
+  "version": 1,
+  "output_env_file": ".env"
+}
