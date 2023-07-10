@@ -29,10 +29,26 @@
     js-sha256 "0.9.0"
     simple-cbor "^0.4.1"
 
+"@dfinity/auth-client@^0.17.0":
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/@dfinity/auth-client/-/auth-client-0.17.0.tgz#db24df26e7013dc84b0c0fd86f94994813ef8319"
+  integrity sha512-vSMLfxn5st8pmClREsrJZ3lc+VlYwCsu0YATMZBH5qEJ6PrjvgK+YuSLKlCxZqEwEkOLWyOHEM7Xmza1yuXiYQ==
+  dependencies:
+    idb "^7.0.2"
+
 "@dfinity/candid@^0.17.0":
   version "0.17.0"
   resolved "https://registry.yarnpkg.com/@dfinity/candid/-/candid-0.17.0.tgz#670e4c63ff64753d10dcf265995568881a393e10"
   integrity sha512-JPcj+1Kcb0+wo4GiDpDJzeCnxxRtSot5G64hzUlu4zqWEeE0OBh9hW0Pns3Np0RKJ5Sbgz+CYzLc+rm7AOy8OA==
+
+"@dfinity/identity@^0.17.0":
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/@dfinity/identity/-/identity-0.17.0.tgz#2a1b116a40fec45ce13512ffef8e879568575ebb"
+  integrity sha512-GNH6ufvO+i9m7PhAPiN7Suu/4eIn1PVgI4iV5mrXUvpSgAmZNbcWq8QIsUbCgSsWrv3ahdJhVv0328/ek1Tjrg==
+  dependencies:
+    borc "^2.1.1"
+    js-sha256 "^0.9.0"
+    tweetnacl "^1.0.1"
 
 "@dfinity/principal@^0.17.0":
   version "0.17.0"
@@ -1385,6 +1401,11 @@ human-signals@^4.3.0:
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-4.3.1.tgz#ab7f811e851fca97ffbd2c1fe9a958964de321b2"
   integrity sha512-nZXjEF2nbo7lIw3mgYjItAfgQXog3OjJogSbKa2CQIIvSGWcKgeJnQlNXip6NglNzYH45nSRiEVimMvYL8DDqQ==
 
+idb@^7.0.2:
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/idb/-/idb-7.1.1.tgz#d910ded866d32c7ced9befc5bfdf36f572ced72b"
+  integrity sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==
+
 ieee754@^1.1.13:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
@@ -2539,6 +2560,11 @@ tsutils@^3.21.0:
   integrity sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==
   dependencies:
     tslib "^1.8.1"
+
+tweetnacl@^1.0.1:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
+  integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"
