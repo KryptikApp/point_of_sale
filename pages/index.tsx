@@ -6,6 +6,8 @@ import { useThemeContext } from "@/ui/components/ThemeProvider";
 import { SETUP_PROGRESS } from "@/ui/types/flow";
 import { useState, useEffect } from "react";
 import InputText from "@/ui/components/InputText";
+import { useAuthContext } from "@/ui/components/AuthProvider";
+import toast from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,6 +17,7 @@ export default function Index() {
     SETUP_PROGRESS.START
   );
   const { primaryColor } = useThemeContext();
+  const { user, loading, login } = useAuthContext();
   const [serverMessage, setServerMessage] = useState<null | string>(null);
   const [businessName, setBusinessName] = useState("");
 
@@ -30,6 +33,20 @@ export default function Index() {
 
   function handleGetStarted() {
     setProgress(SETUP_PROGRESS.ENTER_BUSINESS_NAME);
+  }
+
+  function handleLoginResponse(success: boolean) {
+    if (success) {
+      toast.success("Login successful");
+    } else {
+      toast.error("Login failed");
+    }
+  }
+
+  async function handleLoginRequest() {
+    console.log("LOGIN REQUEST...");
+    await login(handleLoginResponse);
+    console.log("LOGIN REQUEST DONE");
   }
 
   async function handleAddressConfirmation(address: string) {
@@ -82,6 +99,13 @@ export default function Index() {
           >
             Get Started
           </button>
+          {/* login option */}
+          <p
+            className="text-gray-400 hover:cursor-pointer text-xl"
+            onClick={() => handleLoginRequest()}
+          >
+            Login For Full Service
+          </p>
         </div>
       )}
       {progress === SETUP_PROGRESS.ENTER_BUSINESS_NAME && (

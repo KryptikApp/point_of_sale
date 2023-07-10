@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import { AuthProvider } from "@/ui/components/AuthProvider";
 import Layout from "@/ui/components/Layout";
 import { ThemeProvider } from "@/ui/components/ThemeProvider";
 import { ThemeProvider as NextThemeProvider } from "next-themes";
@@ -12,11 +13,13 @@ export default function App({ Component, pageProps }: AppProps) {
       enableColorScheme={true}
       themes={["light", "dark"]}
     >
-      <ThemeProvider>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </ThemeProvider>
+      </AuthProvider>
     </NextThemeProvider>
   );
 }
