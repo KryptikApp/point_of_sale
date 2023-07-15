@@ -1,0 +1,19 @@
+type Response = 
+ record {
+   data: opt Merchant;
+   error_text: opt text;
+   status: nat16;
+   status_text: text;
+ };
+type Merchant = 
+ record {
+   businessName: text;
+   phoneNotifications: bool;
+   phoneNumber: text;
+ };
+type Main = 
+ service {
+   get: () -> (Response) query;
+   update: (Merchant) -> (Response);
+ };
+service : () -> Main
