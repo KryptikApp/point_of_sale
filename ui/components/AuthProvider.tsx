@@ -1,22 +1,23 @@
 import { createContext, useContext } from "react";
-import { useAuth } from "../auth";
-import { IIUser } from "../auth/types";
+import { ILoginResponse, useAuth } from "../auth";
+
 import { AuthClient } from "@dfinity/auth-client";
+import { IMerchant } from "../auth/types";
 
 interface IAuthContext {
-  user: IIUser | null;
+  merchant: IMerchant | null;
   loading: boolean;
-  login: (doneHandler: (success: boolean) => any) => any;
+  login: (doneHandler: (res: ILoginResponse) => any) => any;
   authClient: AuthClient | null;
-  updateLocalUser: (user: IIUser) => void;
+  updateMerchant: (merhchant: IMerchant) => Promise<boolean>;
 }
 
 const AuthContext = createContext<IAuthContext>({
-  user: null,
+  merchant: null,
   loading: false,
-  login: (doneHandler: (success: boolean) => {}) => {},
+  login: (doneHandler: (res: ILoginResponse) => {}) => {},
   authClient: null,
-  updateLocalUser: (user: IIUser) => {},
+  updateMerchant: async (merchant: IMerchant) => false,
 });
 
 export function AuthProvider(props: any) {

@@ -1,8 +1,7 @@
 // internet identity user type
-export interface IIUser {
+export interface IMerchant {
   id: string;
   businessName?: string;
-  emaiL?: string;
-  phone?: string;
-  ckBtcAddress?: string;
+  phoneNumber?: string;
+  phoneNotifications?: boolean;
 }
