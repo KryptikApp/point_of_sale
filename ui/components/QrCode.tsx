@@ -14,6 +14,22 @@ interface QRCodeProps {
 export default function QRCode(props: QRCodeProps) {
   const { text, showReadableAddress, color, name } = props;
   const [isCopied, setIsCopied] = useState(false);
+
+  function handleIsCopiedToggle() {
+    navigator.clipboard.writeText(text);
+    if (!isCopied) {
+      // update copy state
+      setIsCopied(true);
+    }
+  }
+
+  useEffect(() => {
+    if (!isCopied) return;
+    setInterval(() => {
+      setIsCopied(false);
+    }, 3000);
+  }, []);
+
   const [qrOptions, setQrOptions] = useState<Options>({
     width: 300,
     height: 300,
@@ -41,16 +57,6 @@ export default function QRCode(props: QRCodeProps) {
       crossOrigin: "anonymous",
     },
   });
-
-  const handleIsCopiedToggle = async () => {
-    // copy selected adress
-    navigator.clipboard.writeText("");
-    navigator.clipboard.writeText(text);
-    if (!isCopied) {
-      // update copy state
-      setIsCopied(true);
-    }
-  };
 
   const useQRCodeStyling = (options: Options): QRCodeStyling | null => {
     //Only do this on the client
