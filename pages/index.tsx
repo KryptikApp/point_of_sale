@@ -3,43 +3,53 @@ import { makeHelloActor } from "@/ui/helpers/actors";
 
 import QRCode from "@/ui/components/QrCode";
 import { useThemeContext } from "@/ui/components/ThemeProvider";
-import { SETUP_PROGRESS } from "@/ui/types/flow";
+import { QUICKSTART_PROGRESS } from "@/ui/types/flow";
 import { useState, useEffect } from "react";
 import InputText from "@/ui/components/InputText";
 import { useAuthContext } from "@/ui/components/AuthProvider";
 import toast from "react-hot-toast";
+import { useRouter } from "next/router";
+import { ILoginResponse } from "@/ui/auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Index() {
+  const router = useRouter();
   const [address, setAddress] = useState("");
-  const [progress, setProgress] = useState<SETUP_PROGRESS>(
-    SETUP_PROGRESS.START
+  const [progress, setProgress] = useState<QUICKSTART_PROGRESS>(
+    QUICKSTART_PROGRESS.START
   );
   const { primaryColor } = useThemeContext();
-  const { user, loading, login } = useAuthContext();
+  const { merchant, loading, login } = useAuthContext();
   const [serverMessage, setServerMessage] = useState<null | string>(null);
   const [businessName, setBusinessName] = useState("");
 
   function handleNewAddress(address: string) {
     setAddress(address);
-    setProgress(SETUP_PROGRESS.SHOW_QR_CODE);
+    setProgress(QUICKSTART_PROGRESS.SHOW_QR_CODE);
   }
 
   function handleNewBusinessName(name: string) {
     setBusinessName(name);
-    setProgress(SETUP_PROGRESS.ENTER_ADDRESS);
+    setProgress(QUICKSTART_PROGRESS.ENTER_ADDRESS);
   }
 
-  function handleGetStarted() {
-    setProgress(SETUP_PROGRESS.ENTER_BUSINESS_NAME);
+  function handleQuickStart() {
+    setProgress(QUICKSTART_PROGRESS.ENTER_BUSINESS_NAME);
   }
 
-  function handleLoginResponse(success: boolean) {
-    if (success) {
-      toast.success("Login successful");
-    } else {
+  function handleLoginResponse({ success, newMerchant }: ILoginResponse) {
+    if (!success) {
       toast.error("Login failed");
+      return;
+    }
+    // if already has merchant, redirect to profile
+    if (newMerchant) {
+      router.push("/profile");
+    }
+    // else direct to creation flow
+    else {
+      router.push("/profile/update");
     }
   }
 
@@ -49,66 +59,48 @@ export default function Index() {
     console.log("LOGIN REQUEST DONE");
   }
 
-  async function handleAddressConfirmation(address: string) {
-    if (address == "") return;
-    // create new actor
-    try {
-      const helloActor = await makeHelloActor();
-      const res = await helloActor.greet(address);
-      setServerMessage(res);
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
   function handleBack() {
     switch (progress) {
-      case SETUP_PROGRESS.START:
+      case QUICKSTART_PROGRESS.START:
         break;
-      case SETUP_PROGRESS.ENTER_BUSINESS_NAME:
-        setProgress(SETUP_PROGRESS.START);
+      case QUICKSTART_PROGRESS.ENTER_BUSINESS_NAME:
+        setProgress(QUICKSTART_PROGRESS.START);
         break;
-      case SETUP_PROGRESS.ENTER_ADDRESS:
-        setProgress(SETUP_PROGRESS.ENTER_BUSINESS_NAME);
+      case QUICKSTART_PROGRESS.ENTER_ADDRESS:
+        setProgress(QUICKSTART_PROGRESS.ENTER_BUSINESS_NAME);
         break;
-      case SETUP_PROGRESS.SHOW_QR_CODE:
-        setProgress(SETUP_PROGRESS.ENTER_ADDRESS);
+      case QUICKSTART_PROGRESS.SHOW_QR_CODE:
+        setProgress(QUICKSTART_PROGRESS.ENTER_ADDRESS);
         break;
       default:
         break;
     }
   }
 
-  useEffect(() => {
-    console.log("RUNNING ON ADDY CHANGE");
-    if (address == "") return;
-    handleAddressConfirmation(address);
-  }, [address]);
-
   return (
     <div className="mx-auto max-w-2xl">
-      {progress === SETUP_PROGRESS.START && (
+      {progress === QUICKSTART_PROGRESS.START && (
         <div className="text-center flex-col space-y-2">
           <h1 className="text-3xl">Zap Pay</h1>
           <p className="text-gray-400">A simple way to accept payments.</p>
           <button
-            className="w-full h-12 px-4 py-2 text-base text-gray-900 bg-gray-200 rounded-lg"
+            className="w-full h-12 px-4 py-2 text-gray-900 bg-gray-200 rounded-lg text-2xl font-semibold"
             onClick={() => {
-              handleGetStarted();
+              handleLoginRequest();
             }}
           >
             Get Started
           </button>
           {/* login option */}
           <p
-            className="text-gray-400 hover:cursor-pointer text-xl"
-            onClick={() => handleLoginRequest()}
+            className="text-gray-400 hover:cursor-pointer text-md"
+            onClick={() => handleQuickStart()}
           >
-            Login For Full Service
+            Quick Start
           </p>
         </div>
       )}
-      {progress === SETUP_PROGRESS.ENTER_BUSINESS_NAME && (
+      {progress === QUICKSTART_PROGRESS.ENTER_BUSINESS_NAME && (
         <div>
           <InputText
             onDone={handleNewBusinessName}
@@ -120,7 +112,7 @@ export default function Index() {
           </p>
         </div>
       )}
-      {progress === SETUP_PROGRESS.ENTER_ADDRESS && (
+      {progress === QUICKSTART_PROGRESS.ENTER_ADDRESS && (
         <div>
           <InputText
             onDone={handleNewAddress}
@@ -133,13 +125,13 @@ export default function Index() {
         </div>
       )}
 
-      {progress === SETUP_PROGRESS.SHOW_QR_CODE && (
+      {progress === QUICKSTART_PROGRESS.SHOW_QR_CODE && (
         <QRCode text={address} color={primaryColor} name={businessName} />
       )}
       {serverMessage && (
         <p className="text-gray-400">Server message: {serverMessage}</p>
       )}
-      {progress != SETUP_PROGRESS.START && (
+      {progress != QUICKSTART_PROGRESS.START && (
         <button
           className="w-full h-12 px-4 py-2 text-base text-gray-700 hover:text-yellow-500 rounded-lg focus:outline-none"
           onClick={handleBack}
