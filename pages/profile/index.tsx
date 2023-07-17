@@ -7,7 +7,7 @@ import PhoneNumberPill from "@/ui/components/PhoneNumberPill";
 import { useThemeContext } from "@/ui/components/ThemeProvider";
 import { AiOutlineEdit } from "react-icons/ai";
 
-export default function Index() {
+export default function Profile() {
   const { merchant, loading, login } = useAuthContext();
   const { primaryColor } = useThemeContext();
   const router = useRouter();

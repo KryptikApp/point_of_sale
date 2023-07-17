@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
 
-export default function IdPill() {
+export default function Receive() {
   const { merchant } = useAuthContext();
   const router = useRouter();
   useEffect(() => {
