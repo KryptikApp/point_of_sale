@@ -12,11 +12,15 @@ export default function IdPill() {
   };
   return (
     <div
-      className="flex flex-row space-x-2 px-2 py-1 rounded-lg dark:bg-gray-700/60 bg-gray-200/60 hover:cursor-pointer text-2xl w-fit hover:text-green-400"
+      className="opacity-20 hover:opacity-100 rounded-lg border w-fit"
       style={{ borderColor: primaryColor }}
-      onClick={() => handleCopy()}
     >
-      {trimPrincipal(merchant?.id || "")}
+      <div
+        className="flex flex-row space-x-2 px-2 py-1 rounded-lg dark:bg-gray-700/60 bg-gray-200/60 hover:cursor-pointer text-2xl w-fit hover:text-green-400"
+        onClick={() => handleCopy()}
+      >
+        {trimPrincipal(merchant?.id || "")}
+      </div>
     </div>
   );
 }
