@@ -8,6 +8,7 @@ interface IAuthContext {
   merchant: IMerchant | null;
   loading: boolean;
   login: (doneHandler: (res: ILoginResponse) => any) => any;
+  logout: () => boolean;
   authClient: AuthClient | null;
   updateMerchant: (merhchant: IMerchant) => Promise<boolean>;
 }
@@ -18,6 +19,7 @@ const AuthContext = createContext<IAuthContext>({
   login: (doneHandler: (res: ILoginResponse) => {}) => {},
   authClient: null,
   updateMerchant: async (merchant: IMerchant) => false,
+  logout: () => false,
 });
 
 export function AuthProvider(props: any) {

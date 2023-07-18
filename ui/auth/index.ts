@@ -119,6 +119,24 @@ export function useAuth() {
 
     setLoading(false);
   }
+
+  /**
+   * Logout the current user
+   * @returns true if logout was successful, false otherwise
+   */
+  function logout(): boolean {
+    let success = false;
+    try {
+      authClient?.logout();
+      success = true;
+    } catch (e) {
+      // pass for now
+    }
+    setMerchant(null);
+    setLoading(false);
+    return success;
+  }
+
   /**
    * Update local and remote merchant data
    * @param newMerchant New values for the merchant
@@ -154,5 +172,5 @@ export function useAuth() {
     init();
   }, []);
 
-  return { authClient, merchant, login, loading, updateMerchant };
+  return { authClient, merchant, login, loading, updateMerchant, logout };
 }
