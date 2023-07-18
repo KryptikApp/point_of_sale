@@ -10,6 +10,7 @@ import { useAuthContext } from "@/ui/components/AuthProvider";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import { ILoginResponse } from "@/ui/auth";
+import { formatPrincipalInput, isValidPrincipal } from "@/ui/utils/identity";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,7 +26,15 @@ export default function Index() {
   const [businessName, setBusinessName] = useState("");
 
   function handleNewAddress(address: string) {
-    setAddress(address);
+    // validate address
+    const isValid = isValidPrincipal(address);
+    if (!isValid) {
+      toast.error("Invalid address");
+      return;
+    }
+    // format address
+    const newAddress = formatPrincipalInput(address);
+    setAddress(newAddress);
     setProgress(QUICKSTART_PROGRESS.SHOW_QR_CODE);
   }
 
