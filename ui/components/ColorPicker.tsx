@@ -1,5 +1,11 @@
 import toast from "react-hot-toast";
-import { YELLOW, BLUE, PURPLE } from "../constants/colors";
+import {
+  YELLOW,
+  BLUE,
+  PURPLE,
+  ORANGE,
+  LIGHT_PURPLE,
+} from "../constants/colors";
 import ColorSwatch from "./ColorSwatch";
 import { useThemeContext } from "./ThemeProvider";
 
@@ -16,9 +22,10 @@ export default function ColorPicker() {
   };
 
   return (
-    <div className="space-y-4 flex-col z-10">
-      <ColorSwatch color={YELLOW} clickHandler={handleColorChange} />
+    <div className="space-x-4 flex flex-row z-10">
+      <ColorSwatch color={ORANGE} clickHandler={handleColorChange} />
       <ColorSwatch color={BLUE} clickHandler={handleColorChange} />
+      <ColorSwatch color={LIGHT_PURPLE} clickHandler={handleColorChange} />
       <ColorSwatch color={PURPLE} clickHandler={handleColorChange} />
     </div>
   );

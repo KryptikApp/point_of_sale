@@ -1,12 +1,12 @@
 // theme context with state to get and set primary color
 
 import { useEffect, useState } from "react";
-import { YELLOW } from "../constants/colors";
+import { BLUE, YELLOW } from "../constants/colors";
 
 export function useTheme() {
   const defaultTheme: ITheme = {
     // blue
-    primaryColor: YELLOW,
+    primaryColor: BLUE,
   };
 
   // init state
