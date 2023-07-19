@@ -130,7 +130,7 @@ export default function Index() {
             Confirm
             {loadingUpload && <LoadingSpinner />}
           </button>
-          {loading && (
+          {loadingUpload && (
             <p className="text-gray-500 text-lg text-center mt-2">
               Hang tight. This may take a few moments.
             </p>
