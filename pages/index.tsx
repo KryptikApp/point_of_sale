@@ -23,7 +23,7 @@ export default function Index() {
   );
   const { primaryColor } = useThemeContext();
   const { merchant, loading, login, updateLocalMerchant } = useAuthContext();
-  const [serverMessage, setServerMessage] = useState<null | string>(null);
+  const [loadingLogin, setLoadingLogin] = useState(false);
   const [businessName, setBusinessName] = useState("");
 
   function handleNewAddress(address: string) {
@@ -76,6 +76,7 @@ export default function Index() {
   }
 
   async function handleLoginRequest() {
+    setLoadingLogin(true);
     console.log("LOGIN REQUEST...");
     await login(handleLoginResponse);
     console.log("LOGIN REQUEST DONE");
@@ -100,6 +101,7 @@ export default function Index() {
   }
 
   useEffect(() => {
+    if (loadingLogin) return;
     // show logged in merchant profile page
     if (!loading && merchant && merchant.loggedIn) {
       router.push("/profile");
@@ -163,9 +165,7 @@ export default function Index() {
       {progress === QUICKSTART_PROGRESS.SHOW_QR_CODE && (
         <QRCode text={address} color={primaryColor} name={businessName} />
       )}
-      {serverMessage && (
-        <p className="text-gray-400">Server message: {serverMessage}</p>
-      )}
+
       {progress != QUICKSTART_PROGRESS.START && (
         <button
           className="w-full h-12 px-4 py-2 text-base text-gray-700 hover:text-green-500 rounded-lg focus:outline-none"
