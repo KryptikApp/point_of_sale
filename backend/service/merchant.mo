@@ -230,9 +230,9 @@ actor class Main(_smsApiKey : Text, _test:Text) {
     * @param name - the name of the recipient
     */
     public shared (msg) func welcomeMessage(number:Text, name:Text) : async ResponseMessage {
-       let body:Text = "{\"message\": {\"to\": {\"phone_number\": \"" #number# "\"},\"template\": \"TAG9DKR39N4KA7NN2THGEFDW3CYM\",\"data\": {\"recipientName\": \" " #name# "\"}}}";
+       let body:Text = "{\"phone_number\": \"" #number# "\", \"name\": \"" #name# "\"}";
         
-        let res:Text = await sendSMS(body, name);
+        let res:Text = await sendSMSAlt(body, name, "https://pay.kryptik.app/api/notify/welcome");
         // debug print args
         Debug.print(_smsApiKey);
         Debug.print(test);
@@ -252,8 +252,9 @@ actor class Main(_smsApiKey : Text, _test:Text) {
     * @param amount - the amount of the transaction
     */
     public shared (msg) func txMessage(number:Text, name:Text, amount:Text) : async ResponseMessage {
-        let body:Text = "{\"message\": {\"to\": {\"phone_number\":\"" #number# "\"},\"template\": \"N3G4A5ZMC8M8CRKT4PR41PWRYGZC\",\"data\": {\"amount\": \"10\",\"currencyName\": \"ckBTC\",\"recipientName\":\"" #name# "\"}}}";
-        let res:Text = await sendSMS(body, name);
+        // let body:Text = "{\"message\": {\"to\": {\"phone_number\":\"" #number# "\"},\"template\": \"N3G4A5ZMC8M8CRKT4PR41PWRYGZC\",\"data\": {\"amount\": \"10\",\"currencyName\": \"ckBTC\",\"recipientName\":\"" #name# "\"}}}";
+        let body:Text = "{\"phone_number\": \"" #number# "\", \"name\": \"" #name# "\" \"amount\": \"" #amount# "\"}";
+        let res:Text = await sendSMSAlt(body, name, "https://pay.kryptik.app/api/notify/newTx");
         
         {
         status = 200;
@@ -276,6 +277,61 @@ actor class Main(_smsApiKey : Text, _test:Text) {
 
     // url to send the request to
     let url = "https://api.courier.com/send";
+
+    // Prepare headers for the system http_request call
+
+    //idempotency keys should be unique so we create a function that generates them.
+    let idempotency_key: Text = await generateRandomString(name);
+    let requestHeaders = [
+        { name= "Content-Type"; value = "application/json" },
+        { name= "Idempotency-Key"; value = idempotency_key },
+        { name= "Accept"; value="application/json"},
+        { name= "Authorization"; value="Bearer" # " " # smsApiKey},
+    ];
+
+    let requestBodyAsBlob: Blob = Text.encodeUtf8(bodyJson); 
+    let requestBodyAsNat8: [Nat8] = Blob.toArray(requestBodyAsBlob);
+
+    // Build The HTTP request
+    let http_request : Types.HttpRequestArgs = {
+        url = url;
+        max_response_bytes = ?Nat64.fromNat(1000);
+        headers = requestHeaders;
+        body = ?requestBodyAsNat8;
+        method = #post;
+        transform = null; //optional for request
+    };
+    
+    // Add cycles to the next async call (in this case HTTP request)
+    // 49.14M + 5200 * request_size + 10400 * max_response_bytes
+    // 49.14M + (5200 * 1000) + (10400 * 1000) = 64.74M
+    // calculations from 
+    Cycles.add(70_000_000);
+    
+    // MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
+    //Since the cycles were added above, we can just call the IC management canister with HTTPS outcalls below
+    let http_response : Types.HttpResponsePayload = await ic.http_request(http_request);
+
+    // Decode that [Na8] array that is the body into readable text. 
+    let response_body: Blob = Blob.fromArray(http_response.body);
+    let ?decoded_text = Text.decodeUtf8(response_body) else return "No value returned";
+
+    Debug.print("Response body: " # decoded_text);
+
+    return(decoded_text)
+  };
+
+      /**
+    * Sends an sms message
+    * @param bodyJson - the body of the request
+    * @param name - the name of the recipient
+    */
+    public func sendSMSAlt(bodyJson:Text, name:Text, url:Text) : async Text {
+
+    // DECLARE IC MANAGEMENT CANISTER
+    // Used for the HTTP request
+    let ic:Types.IC = actor ("aaaaa-aa");
+
 
     // Prepare headers for the system http_request call
 
