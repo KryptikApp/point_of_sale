@@ -7,6 +7,7 @@ import { makeMerchantBackendActor } from "../helpers/actors";
 import { removeAllSpaces } from "../utils/text";
 import { Transaction } from "../types/transaction";
 import { toast } from "react-hot-toast";
+import { formatCkBtc, isTxCkBtc } from "../utils/tokens";
 
 export interface ILoginResponse {
   success: boolean;
@@ -123,10 +124,14 @@ export function useAuth() {
 
   function notifyClient(tx: Transaction) {
     let msg = "";
+    const isCkBtc = isTxCkBtc(tx);
+    const formattedAmount: string = isCkBtc
+      ? formatCkBtc(tx.amount)
+      : tx.amount.toString();
     if (tx.incoming) {
-      msg = `Incoming transaction of ${tx.amount} ${tx.ticker}`;
+      msg = `Incoming transaction of ${formattedAmount} ${tx.ticker}`;
     } else {
-      msg = `Outgoing transaction of ${tx.amount} ${tx.ticker}`;
+      msg = `Outgoing transaction of ${formattedAmount} ${tx.ticker}`;
     }
     toast.success(msg, { duration: 5000, icon: "💰" });
     // play sound
