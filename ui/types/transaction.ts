@@ -9,6 +9,7 @@ export interface Transaction {
   transaction_hash: string | null;
   // whether the transaction is incoming or outgoing
   incoming: boolean;
+  created_at_time: string | null;
 }
 
 export interface CkBtcTransaction extends Transaction {
@@ -27,7 +28,6 @@ export interface CkBtcTransaction extends Transaction {
   raw: Record<string, unknown>; // The type of this can be modified as per the actual data
   kind: string;
   memo: string | null;
-  ticker: "ckBtc";
 }
 
 export const defaultTx: Transaction = {
@@ -38,4 +38,5 @@ export const defaultTx: Transaction = {
   from_owner: "",
   transaction_hash: "",
   incoming: false,
+  created_at_time: "",
 };
