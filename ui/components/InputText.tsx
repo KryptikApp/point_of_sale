@@ -20,9 +20,9 @@ export default function InputText(props: Props) {
       <input
         type="search"
         id="search"
-        className="block w-full p-4 pl-4 dark:ring-gray-600 ring-2 ring-gray-300 text-2xl text-gray-900 rounded-lg bg-transparent dark:bg-transparent dark:placeholder-gray-400 dark:text-white focus:outline-none focus:outline-4"
+        className="block w-full p-4 pl-4 dark:ring-gray-600 ring-4 ring-gray-300 text-2xl text-gray-900 rounded-lg bg-transparent dark:bg-transparent dark:placeholder-gray-400 dark:text-white focus:outline-none focus:shadow-xl rounded-lg"
         placeholder={placeholder}
-        style={{ outlineColor: color }}
+        style={{ borderColor: color, boxShadow: `0 0 0 3px ${color}` }}
         required
         value={address}
         onChange={(e) => setAddress(e.target.value)}

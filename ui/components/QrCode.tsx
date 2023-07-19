@@ -188,7 +188,7 @@ export default function QRCode(props: QRCodeProps) {
         )}
       </div>
       <div
-        className="flex flex-row space-x-2 mx-auto max-w-fit mt-4 hover:cursor-pointer bg-gray-100/20 dark:bg-gray-900/80 rounded-lg p-2"
+        className="flex flex-row space-x-2 mx-auto max-w-fit mt-4 hover:cursor-pointer bg-gray-300/20 dark:bg-gray-900/80 rounded-lg p-2"
         onClick={() => handleSharePage()}
       >
         <AiOutlineShareAlt size={20} className="my-auto" />
