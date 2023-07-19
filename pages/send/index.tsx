@@ -73,6 +73,7 @@ export default function Send() {
     setToAddy(text);
     setProgress(PAYMENT_PROGRESS.ENTER_AMOUNT);
     setProgressPercent(50);
+    setShowScanner(false);
   }
 
   function validateAmount(text: string): { valid: boolean; amountNum: number } {
