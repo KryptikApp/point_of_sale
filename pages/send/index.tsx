@@ -168,7 +168,7 @@ export default function Send() {
         {progress != PAYMENT_PROGRESS.DONE && (
           <div className="flex flex-row space-x-3">
             <h1 className="text-2xl font-bold">Send</h1>
-            <img src="/tokens/ckbtc.svg" className="w-8 h-8 my-auto" />
+            <img src="/public/tokens/ckBtc.svg" className="w-8 h-8 my-auto" />
           </div>
         )}
         {progress === PAYMENT_PROGRESS.DONE && (
