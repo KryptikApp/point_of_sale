@@ -2,31 +2,40 @@ import IdPill from "@/ui/components/IdPill";
 import InputText from "@/ui/components/InputText";
 import LoadingSpinner from "@/ui/components/LoadingSpinner";
 import { useThemeContext } from "@/ui/components/ThemeProvider";
+import VerticalSpace from "@/ui/components/VerticalSpace";
 import KryptikScanner from "@/ui/components/kryptikScanner";
 import { PAYMENT_PROGRESS } from "@/ui/types/flow";
 import { isValidPrincipal } from "@/ui/utils/identity";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { AiFillCheckCircle } from "react-icons/ai";
 
 export default function Send() {
   const [showScanner, setShowScanner] = useState(false);
   const [toAddy, setToAddy] = useState("");
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState(25);
   const [ticker, setTicker] = useState("ckBtc");
   const [progress, setProgress] = useState<PAYMENT_PROGRESS>(
     PAYMENT_PROGRESS.START
   );
+  const [progressPercent, setProgressPercent] = useState(0);
   const [loadingSend, setLoadingSend] = useState(false);
   const { primaryColor } = useThemeContext();
 
   async function handleSend() {
     setLoadingSend(true);
     try {
+      setProgressPercent(100);
     } catch (e) {
       console.error(e);
       toast.error("Error sending payment");
     }
+    setProgress(PAYMENT_PROGRESS.DONE);
     setLoadingSend(false);
+  }
+
+  function toggleScanner() {
+    setShowScanner(!showScanner);
   }
 
   function handleNewAddress(text: string) {
@@ -39,6 +48,7 @@ export default function Send() {
     }
     setToAddy(text);
     setProgress(PAYMENT_PROGRESS.ENTER_AMOUNT);
+    setProgressPercent(25);
   }
 
   function validateAmount(text: string): { valid: boolean; amountNum: number } {
@@ -58,6 +68,7 @@ export default function Send() {
       return { valid: false, amountNum: 0 };
     }
     setProgress(PAYMENT_PROGRESS.REVIEW);
+    setProgressPercent(75);
     return { valid: false, amountNum: amountNum };
   }
 
@@ -68,22 +79,91 @@ export default function Send() {
     setAmount(amountNum);
   }
 
+  function handleBack() {
+    switch (progress) {
+      case PAYMENT_PROGRESS.ENTER_RECEIVER:
+        setProgress(PAYMENT_PROGRESS.ENTER_AMOUNT);
+        setProgressPercent(25);
+        break;
+      case PAYMENT_PROGRESS.ENTER_AMOUNT:
+        setProgress(PAYMENT_PROGRESS.START);
+        setProgressPercent(50);
+        break;
+      case PAYMENT_PROGRESS.REVIEW:
+        setProgress(PAYMENT_PROGRESS.ENTER_AMOUNT);
+        setProgressPercent(75);
+        break;
+      case PAYMENT_PROGRESS.DONE:
+        setProgress(PAYMENT_PROGRESS.START);
+        setProgressPercent(25);
+        break;
+      default:
+        break;
+    }
+  }
+
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Send</h1>
+    <div className="max-w-xl mx-auto">
+      <VerticalSpace />
+      <div>
+        {progress != PAYMENT_PROGRESS.DONE && (
+          <div className="flex flex-row space-x-3">
+            <h1 className="text-2xl font-bold">Send</h1>
+            <img src="/tokens/ckbtc.svg" className="w-8 h-8 my-auto" />
+          </div>
+        )}
+        {progress === PAYMENT_PROGRESS.DONE && (
+          <div className="flex flex-row space-x-3">
+            <h1 className="text-2xl font-bold">Payment Sent</h1>
+            <AiFillCheckCircle size={28} className="text-green-400 my-auto" />
+          </div>
+        )}
+        <div className="max-w-full bg-gray-200 dark:bg-[#141414] rounded-full h-2 mt-2">
+          <div
+            id="progressBar"
+            className="h-2 rounded-full text-gray-700"
+            style={{
+              width: `${progressPercent}%`,
+              maxWidth: `100%`,
+              paddingLeft: "2%",
+              backgroundColor: primaryColor,
+            }}
+          >
+            {/* {progressPercent > 5 ? `${progressPercent.toFixed(2)}%` : ""} */}
+          </div>
+        </div>
+      </div>
+
       {progress === PAYMENT_PROGRESS.START && (
-        <InputText
-          color={primaryColor}
-          onDone={handleNewAddress}
-          placeholder="To Address"
-        />
+        <div>
+          <InputText
+            color={primaryColor}
+            onDone={handleNewAddress}
+            placeholder="To Address"
+          />
+          <p className="dark:text-gray-500 text-gray-400 text-lg">
+            Add recipient. Must be a valid ckBtc address.
+          </p>
+          <p
+            className="dark:text-gray-500 text-gray-400 text-lg hover:font-bold underline hover:cursor-pointer"
+            onClick={() => toggleScanner()}
+          >
+            Scan
+          </p>
+          <KryptikScanner onScan={handleNewAddress} show={showScanner} />
+        </div>
       )}
       {progress === PAYMENT_PROGRESS.ENTER_AMOUNT && (
-        <InputText
-          color={primaryColor}
-          onDone={handleNewAmount}
-          placeholder="Amount"
-        />
+        <div>
+          <InputText
+            color={primaryColor}
+            onDone={handleNewAmount}
+            placeholder="Amount"
+          />
+          <p className="dark:text-gray-500 text-gray-400 text-lg">
+            Add amount. Must be greater than 0.
+          </p>
+        </div>
       )}
       {progress === PAYMENT_PROGRESS.REVIEW && (
         <div>
@@ -105,7 +185,23 @@ export default function Send() {
           </button>
         </div>
       )}
-      <KryptikScanner onScan={handleNewAddress} show={showScanner} />
+      {progress === PAYMENT_PROGRESS.DONE && (
+        <div className="mt-2">
+          <p className="text-center text-xl">
+            Your transaction has been sent to the network. It may take a few
+            minutes to finalize.
+          </p>
+        </div>
+      )}
+
+      {progress != PAYMENT_PROGRESS.START && (
+        <button
+          className="w-full h-12 px-4 py-2 text-base text-gray-700 hover:text-yellow-500 rounded-lg focus:outline-none"
+          onClick={handleBack}
+        >
+          Back
+        </button>
+      )}
     </div>
   );
 }
