@@ -4,6 +4,7 @@ import { useThemeContext } from "@/ui/components/ThemeProvider";
 import VerticalSpace from "@/ui/components/VerticalSpace";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { AiOutlinePrinter } from "react-icons/ai";
 
 export default function Receive() {
   const { merchant, loading } = useAuthContext();
@@ -24,6 +25,10 @@ export default function Receive() {
       setPaymentPageUrl(newPaymentPageUrl);
     }
   }, [merchant, loading]);
+
+  function handlePrint() {
+    window.print();
+  }
   return (
     <div>
       <VerticalSpace />
@@ -43,6 +48,13 @@ export default function Receive() {
               name={merchant?.businessName}
             />
           )}
+          <div
+            className="flex flex-row space-x-3 max-w-fit mx-auto hover:cursor-pointer dark:text-gray-200 text-gray-900 hover:font-semibold mt-4"
+            onClick={() => handlePrint()}
+          >
+            <AiOutlinePrinter size={30} />
+            <p className="text-lg my-auto">Print</p>
+          </div>
         </div>
       )}
       {!merchant?.id && (
