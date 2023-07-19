@@ -6,6 +6,7 @@
 ## Features
 - Authenticate with the Internet Identity standard
 - Display a QR code for customers to scan
+- Print QR Code
 - Unique URLs for each payment page
 - Custom store themes
 - Send ckBTC with native support for scanning
