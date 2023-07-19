@@ -9,10 +9,13 @@ export default function Receive() {
   const { merchant } = useAuthContext();
   const router = useRouter();
   const { primaryColor } = useThemeContext();
-  const [paymentPageUrl, setPaymentPageUrl] = useState<string>("");
+  const [paymentPageUrl, setPaymentPageUrl] = useState<string | null>(null);
   useEffect(() => {
     if (!merchant) {
       router.push("/");
+    }
+    if (!merchant?.loggedIn) {
+      return;
     }
     const newPaymentPageUrl = `${window.location.origin}/receive/${merchant?.slug}`;
     setPaymentPageUrl(newPaymentPageUrl);
@@ -22,12 +25,20 @@ export default function Receive() {
       <VerticalSpace />
       {merchant?.id && (
         <div>
-          <QRCode
-            text={merchant?.id}
-            color={primaryColor}
-            name={merchant?.businessName}
-            pageUrl={paymentPageUrl}
-          />
+          {paymentPageUrl ? (
+            <QRCode
+              text={merchant?.id}
+              color={primaryColor}
+              name={merchant?.businessName}
+              pageUrl={paymentPageUrl}
+            />
+          ) : (
+            <QRCode
+              text={merchant?.id}
+              color={primaryColor}
+              name={merchant?.businessName}
+            />
+          )}
         </div>
       )}
       {!merchant?.id && (
