@@ -13,9 +13,9 @@ export default function Layout({ children }: any) {
         <title>Payments</title>
         <meta
           name="description"
-          content="A simple way to accept ckBTC payments."
+          content="A simple way to accept online payments."
         />
-        <link rel="icon" href="/icon.ico" />
+        <link rel="icon" href="/brand/icon.ico" />
       </Head>
       <Toaster />
 
