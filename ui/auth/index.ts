@@ -269,11 +269,13 @@ export function useAuth() {
           name: merchantToUpload.businessName,
           number: merchantToUpload.phoneNumber,
         };
-        KryptikFetch("/api/notify/welcome", {
-          body: JSON.stringify(body),
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        });
+        try {
+          const res = await KryptikFetch("/api/notify/welcome", {
+            body: JSON.stringify(body),
+            timeout: 8000,
+            headers: { "Content-Type": "application/json" },
+          });
+        } catch (e) {}
       }
       setMerchant(newMerchant);
       return true;

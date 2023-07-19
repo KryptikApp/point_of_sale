@@ -30,8 +30,8 @@ export default async function handler(
         },
       },
     });
-    res.status(200).json({ success: true, requestId: requestId });
+    return res.status(200).json({ success: true, requestId: requestId });
   } catch (e: any) {
-    res.status(500).json({ success: false, msg: e.message });
+    return res.status(500).json({ success: false, msg: e.message });
   }
 }
