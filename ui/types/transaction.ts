@@ -1,9 +1,14 @@
+import { NonNullExpression } from "typescript";
+
 export interface Transaction {
   amount: number;
   fee: number;
   ticker: string;
   to_owner: string;
   from_owner: string;
+  transaction_hash: string | null;
+  // whether the transaction is incoming or outgoing
+  incoming: boolean;
 }
 
 export interface CkBtcTransaction extends Transaction {
@@ -18,10 +23,19 @@ export interface CkBtcTransaction extends Transaction {
   block_phash: string | null;
   to_subaccount: string;
   updated_at: string;
-  transaction_hash: string | null;
   to_account: string;
   raw: Record<string, unknown>; // The type of this can be modified as per the actual data
   kind: string;
   memo: string | null;
   ticker: "ckBtc";
 }
+
+export const defaultTx: Transaction = {
+  amount: 0,
+  fee: 0,
+  ticker: "",
+  to_owner: "",
+  from_owner: "",
+  transaction_hash: "",
+  incoming: false,
+};
