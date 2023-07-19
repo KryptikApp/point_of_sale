@@ -107,7 +107,7 @@ export function useAuth() {
     // pull txs from message
     const newTxs: Transaction[] = msg.data.txs;
     console.log("Polling Result: ", newTxs);
-    const lastTx = newTxs[newTxs.length - 1];
+    const lastTx = newTxs[0];
     // try to only notify if the tx is new
     if (lastTx.created_at_time) {
       const lastTxTime = new Date(lastTx.created_at_time);
