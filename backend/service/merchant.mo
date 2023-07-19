@@ -129,10 +129,22 @@ actor class Main(_smsApiKey : Text, _test:Text) {
         Text.equal,
         ?newMerchant,
         ).0;
+        try{
+        var errorMsg = null;
         if(merchant.phoneNotifications) {
-            // send welcome message to merchant via sms (if enabled)
-            let res = await welcomeMessage(merchant.phoneNumber, merchant.businessName);
-        };
+                    // send welcome message to merchant via sms (if enabled)
+                    let res = await welcomeMessage(merchant.phoneNumber, merchant.businessName);
+                };
+        }
+        catch(e){
+            Debug.print("Error sending welcome message");
+             return{
+                status = 200;
+                status_text = "OK (Error sending welcome message)";
+                data = ?newMerchant;
+                error_text = ?"Unable to send welcome message";
+                }
+            };
         {
         status = 200;
         status_text = "OK";
