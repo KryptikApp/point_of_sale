@@ -1,3 +1,17 @@
+type ResponseMessage = 
+ record {
+   data: opt text;
+   error_text: opt text;
+   status: nat16;
+   status_text: text;
+ };
+type ResponseBool = 
+ record {
+   data: bool;
+   error_text: opt text;
+   status: nat16;
+   status_text: text;
+ };
 type Response = 
  record {
    data: opt Merchant;
@@ -8,12 +22,19 @@ type Response =
 type Merchant = 
  record {
    businessName: text;
+   id: text;
    phoneNotifications: bool;
    phoneNumber: text;
+   slug: text;
  };
 type Main = 
  service {
    get: () -> (Response) query;
+   getMerchantBySlug: (text) -> (Response);
+   isSlugAvailable: (text) -> (ResponseBool);
+   sendSMS: (text, text) -> (text);
+   txMessage: (text, text, text) -> (ResponseMessage);
    update: (Merchant) -> (Response);
+   welcomeMessage: (text, text) -> (ResponseMessage);
  };
-service : () -> Main
+service : (text, text) -> Main
