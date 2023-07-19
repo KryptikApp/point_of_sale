@@ -4,4 +4,6 @@ export interface IMerchant {
   businessName?: string;
   phoneNumber?: string;
   phoneNotifications?: boolean;
+  loggedIn?: boolean;
+  slug?: string;
 }
