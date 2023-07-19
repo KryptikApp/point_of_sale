@@ -10,7 +10,7 @@ export function useTheme() {
   };
 
   // init state
-  const [primaryColor, setPrimaryColor] = useState<string>(YELLOW);
+  const [primaryColor, setPrimaryColor] = useState<string>(BLUE);
   const [themeLoading, setThemeLoading] = useState<boolean>(false);
 
   interface ITheme {
@@ -25,15 +25,18 @@ export function useTheme() {
   const fetchTheme = function (uid?: string) {
     let theme: ITheme;
     let themeString: string | null = null;
-    if (uid) {
-      let themeLocation = generateThemeLocation();
-      themeString = localStorage.getItem(themeLocation);
-    }
+
+    let themeLocation = generateThemeLocation();
+    themeString = localStorage.getItem(themeLocation);
+
     // fetch stored theme
     if (!themeString) {
       theme = defaultTheme;
     } else {
       theme = { ...JSON.parse(themeString) };
+      if (theme.primaryColor) {
+        setPrimaryColor(theme.primaryColor);
+      }
     }
   };
 
