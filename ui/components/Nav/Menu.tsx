@@ -24,7 +24,7 @@ const Menu: NextPage<Props> = (props) => {
 
   // change style based on boolean
   const menuWrapperClassName = isMenuMobile
-    ? "flex flex-col md:flex-row md:ml-auto mt-3 md:mt-0 min-h-[80vh] rounded-lg bg-[#F2FBFE] z-10 border-gray-500 border bg-gray-50 py-4 mx-2 pl-4 dark:bg-black md:min-h-0 text-2xl space-y-2"
+    ? "flex flex-col md:flex-row md:ml-auto mt-3 md:mt-0 min-h-[80vh] rounded-lg bg-[#F2FBFE] z-10 border-gray-500 border bg-gray-50 py-4 ml-2 mr-6 dark:bg-black md:min-h-0 text-2xl space-y-2"
     : "hidden text-xl md:flex flex-col md:flex-row md:ml-auto mt-3 md:mt-0";
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const Menu: NextPage<Props> = (props) => {
 
   return (
     <nav
-      className={`py-2 md:py-4 mb-4 md:mx-0 px-2 fixed z-20 top-0 w-full ${
+      className={`py-2 md:py-4 mb-4 md:mx-0 fixed z-20 top-0 w-full ${
         !isMenuMobile && "bg-white/70 dark:bg-black/70"
       } ${isMenuMobile && "bg-white dark:bg-black"}`}
     >
@@ -74,7 +74,7 @@ const Menu: NextPage<Props> = (props) => {
             type="button"
             className={`inline-flex ${
               isMenuMobile && "open"
-            } items-center mt-2 mr-2 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-600`}
+            } items-center mt-2 mr-4 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-600`}
             aria-controls="mobile-menu"
             aria-expanded="false"
           >
