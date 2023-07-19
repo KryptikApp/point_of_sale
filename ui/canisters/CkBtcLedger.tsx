@@ -3,11 +3,13 @@ import { IcrcLedgerCanister } from "@dfinity/ledger";
 import { Principal } from "@dfinity/principal";
 
 export function makeCkBtcLedger(agent: Agent) {
-  if (!process.env.CANISTER_ID_CKBTC_LEDGER)
+  if (!process.env.NEXT_PUBLIC_CANISTER_ID_CKBTC_LEDGER)
     throw new Error("Missing CANISTER_ID_CKBTC_LEDGER");
   const ledgerCanister = IcrcLedgerCanister.create({
     agent,
-    canisterId: Principal.fromText(process.env.CANISTER_ID_CKBTC_LEDGER),
+    canisterId: Principal.fromText(
+      process.env.NEXT_PUBLIC_CANISTER_ID_CKBTC_LEDGER
+    ),
   });
   return ledgerCanister;
 }
