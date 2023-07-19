@@ -53,7 +53,8 @@ export default function CustomReceive() {
       )}
       {!loading && !tempMerchant && (
         <p className="text-gray-500 text-center">
-          👻 This slug is a ghost! No merchant found with slug: '{slug}'
+          👻 This slug is a ghost! No merchant found with slug: &apos;{slug}
+          &apos;
         </p>
       )}
     </div>
