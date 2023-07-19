@@ -263,19 +263,22 @@ export function useAuth() {
       if (res.data[0] && res.data[0].slug) {
         newMerchant.slug = res.data[0].slug;
       }
-      // npotify the merchant
-      if (newMerchant.phoneNotifications) {
+      // notify the merchant
+      if (newMerchant.phoneNumber) {
         const body = {
           name: merchantToUpload.businessName,
           number: merchantToUpload.phoneNumber,
         };
         try {
+          console.log("Notifying merchant with body: ", body);
           const res = await KryptikFetch("/api/notify/welcome", {
             body: JSON.stringify(body),
             timeout: 8000,
             headers: { "Content-Type": "application/json" },
           });
-        } catch (e) {}
+        } catch (e) {
+          console.warn("Error notifying merchant");
+        }
       }
       setMerchant(newMerchant);
       return true;
