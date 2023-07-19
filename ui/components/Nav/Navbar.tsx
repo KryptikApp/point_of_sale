@@ -25,6 +25,19 @@ export default function Navbar() {
           </Link>
         </MenuItem>
       )}
+      {merchant && merchant.loggedIn && (
+        <MenuItem>
+          <Link href="../send">
+            <span
+              className={`p-2 lg:px-4 md:mx-2 text-gray-400 rounded hover:bg-gray-200 hover:cursor-pointer hover:text-gray-700 dark:hover:bg-gray-300 dark:hover:text-black transition-colors duration-300 ${
+                router.pathname == "/send" ? "font-bold" : ""
+              } `}
+            >
+              Send
+            </span>
+          </Link>
+        </MenuItem>
+      )}
       {merchant && (
         <MenuItem>
           <Link href="../history">
