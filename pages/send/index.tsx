@@ -6,25 +6,49 @@ import VerticalSpace from "@/ui/components/VerticalSpace";
 import KryptikScanner from "@/ui/components/kryptikScanner";
 import { PAYMENT_PROGRESS } from "@/ui/types/flow";
 import { isValidPrincipal } from "@/ui/utils/identity";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { AiFillCheckCircle } from "react-icons/ai";
+import { IcrcLedgerCanister } from "@dfinity/ledger";
+import { Principal } from "@dfinity/principal";
+import { convertToBigInt } from "@/ui/utils/numbers";
+import { getBalance, makeCkBtcLedger } from "@/ui/canisters/CkBtcLedger";
+import { useAuthContext } from "@/ui/components/AuthProvider";
 
 export default function Send() {
   const [showScanner, setShowScanner] = useState(false);
   const [toAddy, setToAddy] = useState("");
-  const [amount, setAmount] = useState(25);
+  const [amount, setAmount] = useState(0);
   const [ticker, setTicker] = useState("ckBtc");
   const [progress, setProgress] = useState<PAYMENT_PROGRESS>(
     PAYMENT_PROGRESS.START
   );
-  const [progressPercent, setProgressPercent] = useState(0);
+  const [balance, setBalance] = useState<number | null>(null);
+  const [progressPercent, setProgressPercent] = useState(25);
   const [loadingSend, setLoadingSend] = useState(false);
   const { primaryColor } = useThemeContext();
-
+  const { merchant, agent } = useAuthContext();
+  const [ledgerCanister, setLedgerCanister] =
+    useState<IcrcLedgerCanister | null>(null);
   async function handleSend() {
+    if (!ledgerCanister) {
+      toast.error("Ledger not connected");
+      return;
+    }
     setLoadingSend(true);
     try {
+      const amountBigInt = convertToBigInt(amount);
+      const res = await ledgerCanister.transfer({
+        to: {
+          owner: Principal.fromText(toAddy),
+          subaccount: [],
+        },
+        amount: amountBigInt,
+      });
+      // ensure we get a response
+      if (!res) {
+        throw new Error("No response from ledger");
+      }
       setProgressPercent(100);
     } catch (e) {
       console.error(e);
@@ -48,7 +72,7 @@ export default function Send() {
     }
     setToAddy(text);
     setProgress(PAYMENT_PROGRESS.ENTER_AMOUNT);
-    setProgressPercent(25);
+    setProgressPercent(50);
   }
 
   function validateAmount(text: string): { valid: boolean; amountNum: number } {
@@ -59,17 +83,22 @@ export default function Send() {
     let amountNum: number = 0;
     try {
       amountNum = parseFloat(text);
+      if (Number.isNaN(amountNum)) {
+        throw new Error("NaN");
+      }
       if (amountNum <= 0) {
         toast.error("Amount must be greater than 0");
+        return { valid: false, amountNum: 0 };
+      }
+      if (balance && amountNum > balance) {
+        toast.error("Insufficient balance");
         return { valid: false, amountNum: 0 };
       }
     } catch (e) {
       toast.error("Invalid amount");
       return { valid: false, amountNum: 0 };
     }
-    setProgress(PAYMENT_PROGRESS.REVIEW);
-    setProgressPercent(75);
-    return { valid: false, amountNum: amountNum };
+    return { valid: true, amountNum: amountNum };
   }
 
   function handleNewAmount(text: string) {
@@ -77,6 +106,8 @@ export default function Send() {
     const { valid, amountNum } = validateAmount(text);
     if (!valid) return;
     setAmount(amountNum);
+    setProgress(PAYMENT_PROGRESS.REVIEW);
+    setProgressPercent(75);
   }
 
   function handleBack() {
@@ -87,7 +118,7 @@ export default function Send() {
         break;
       case PAYMENT_PROGRESS.ENTER_AMOUNT:
         setProgress(PAYMENT_PROGRESS.START);
-        setProgressPercent(50);
+        setProgressPercent(25);
         break;
       case PAYMENT_PROGRESS.REVIEW:
         setProgress(PAYMENT_PROGRESS.ENTER_AMOUNT);
@@ -101,6 +132,34 @@ export default function Send() {
         break;
     }
   }
+
+  async function handleGetBalance() {
+    if (!ledgerCanister || !merchant?.id) {
+      return;
+    }
+    try {
+      const newBalance = await getBalance(ledgerCanister, merchant.id);
+      setBalance(Number(newBalance.toString()));
+    } catch (e) {
+      console.error(e);
+      toast.error("Error getting balance");
+    }
+  }
+
+  useEffect(() => {
+    if (!agent) return;
+    // ledger not available on client
+    if (process.env.NEXT_PUBLIC_APP_MODE == "dev") {
+      return;
+    }
+    try {
+      const newLedger = makeCkBtcLedger(agent);
+      setLedgerCanister(newLedger);
+      handleGetBalance();
+    } catch (e) {
+      console.warn(e);
+    }
+  }, []);
 
   return (
     <div className="max-w-xl mx-auto">
