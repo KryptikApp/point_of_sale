@@ -4,13 +4,18 @@ import { Transaction, defaultTx } from "../types/transaction";
 import { fetchCkBtcTransactions } from "../requests/transaction";
 import { trimPrincipal } from "../utils/identity";
 
+let lastTxResult: Transaction[] = [];
+
 /**
  * Handles the polling of the ledger for new transactions
  * @param id ckbtc account id
  */
 function handleTxPolling(id: string) {
   fetchCkBtcTransactions(id, 20).then((txs: Transaction[]) => {
-    postMessage({ txs: txs });
+    if (txs.length > lastTxResult.length) {
+      postMessage({ txs: txs });
+    }
+    lastTxResult = txs;
   });
 }
 

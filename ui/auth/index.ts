@@ -106,18 +106,16 @@ export function useAuth() {
     // pull txs from message
     const newTxs: Transaction[] = msg.data.txs;
     console.log("Polling Result: ", newTxs);
-    if (newTxs.length > txs.length) {
-      const lastTx = newTxs[newTxs.length - 1];
-      // try to only notify if the tx is new
-      if (lastTx.created_at_time) {
-        const lastTxTime = new Date(lastTx.created_at_time);
-        // only notify if the tx is newer than five minutes
-        if (lastTxTime.getTime() > new Date().getTime() - 5 * 60 * 1000) {
-          notifyClient(lastTx);
-        }
-      } else {
+    const lastTx = newTxs[newTxs.length - 1];
+    // try to only notify if the tx is new
+    if (lastTx.created_at_time) {
+      const lastTxTime = new Date(lastTx.created_at_time);
+      // only notify if the tx is newer than five minutes
+      if (lastTxTime.getTime() > new Date().getTime() - 5 * 60 * 1000) {
         notifyClient(lastTx);
       }
+    } else {
+      notifyClient(lastTx);
     }
     setLastTxFetchTime(new Date());
     setTxs(newTxs);
