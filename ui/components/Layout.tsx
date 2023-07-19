@@ -11,7 +11,10 @@ export default function Layout({ children }: any) {
     <>
       <Head>
         <title>Payments</title>
-        <meta name="description" content="Crypto made simple." />
+        <meta
+          name="description"
+          content="A simple way to accept ckBTC payments."
+        />
         <link rel="icon" href="/icon.ico" />
       </Head>
       <Toaster />
