@@ -6,11 +6,12 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 export default function Receive() {
-  const { merchant } = useAuthContext();
+  const { merchant, loading } = useAuthContext();
   const router = useRouter();
   const { primaryColor } = useThemeContext();
   const [paymentPageUrl, setPaymentPageUrl] = useState<string | null>(null);
   useEffect(() => {
+    if (loading) return;
     if (!merchant) {
       router.push("/");
     }
@@ -19,7 +20,7 @@ export default function Receive() {
     }
     const newPaymentPageUrl = `${window.location.origin}/receive/${merchant?.slug}`;
     setPaymentPageUrl(newPaymentPageUrl);
-  }, [merchant]);
+  }, [merchant, loading]);
   return (
     <div>
       <VerticalSpace />

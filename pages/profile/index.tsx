@@ -15,13 +15,14 @@ export default function Profile() {
   const [paymentPageUrl, setPaymentPageUrl] = useState<string>("");
   const router = useRouter();
   useEffect(() => {
+    if (loading) return;
     if (!merchant || !merchant.loggedIn) {
       console.warn("No authenticated merchant found. Redirecting to homepage.");
       router.push("/");
     }
     const newPaymentPageUrl = `${window.location.origin}/receive/${merchant?.slug}`;
     setPaymentPageUrl(newPaymentPageUrl);
-  }, [merchant]);
+  }, [merchant, loading]);
 
   function handleEditRequest() {
     router.push("/profile/update");
