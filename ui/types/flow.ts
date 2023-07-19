@@ -21,4 +21,5 @@ export enum PAYMENT_PROGRESS {
   ENTER_RECEIVER = "enter_receiver",
   ENTER_AMOUNT = "enter_amount",
   REVIEW = "review",
+  DONE = "done",
 }
