@@ -1,7 +1,12 @@
 import QRCodeStyling, { Options } from "qr-code-styling";
 import { useRef, useState } from "react";
 import { useEffect } from "react";
-import { AiFillCheckCircle, AiOutlineCopy } from "react-icons/ai";
+import { toast } from "react-hot-toast";
+import {
+  AiFillCheckCircle,
+  AiOutlineCopy,
+  AiOutlineShareAlt,
+} from "react-icons/ai";
 
 // props type
 interface QRCodeProps {
@@ -9,10 +14,11 @@ interface QRCodeProps {
   showReadableAddress?: boolean;
   color?: string;
   name?: string;
+  pageUrl?: string;
 }
 
 export default function QRCode(props: QRCodeProps) {
-  const { text, showReadableAddress, color, name } = props;
+  const { text, showReadableAddress, color, name, pageUrl } = props;
   const [isCopied, setIsCopied] = useState(false);
 
   function handleIsCopiedToggle() {
@@ -25,10 +31,27 @@ export default function QRCode(props: QRCodeProps) {
 
   useEffect(() => {
     if (!isCopied) return;
-    setInterval(() => {
-      setIsCopied(false);
-    }, 3000);
-  }, []);
+    // set copy state to false after 3 seconds
+    if (isCopied) {
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 3000);
+    }
+  }, [isCopied]);
+
+  function handleSharePage() {
+    if (!pageUrl) return;
+    // copy page url to clipboard
+    navigator.clipboard.writeText(pageUrl);
+    const msg = "Copied payment page to clipboard";
+    if (color) {
+      toast.success(msg, {
+        iconTheme: { primary: color, secondary: "#ffffff" },
+      });
+    } else {
+      toast.success(msg);
+    }
+  }
 
   const [qrOptions, setQrOptions] = useState<Options>({
     width: 300,
@@ -57,6 +80,38 @@ export default function QRCode(props: QRCodeProps) {
       crossOrigin: "anonymous",
     },
   });
+
+  useEffect(() => {
+    // update qr code styling
+    const newOptions: Options = {
+      ...qrOptions,
+      dotsOptions: {
+        gradient: {
+          type: "radial",
+          colorStops: [
+            { offset: 0, color: color ? color : "#18C2F6" },
+            { offset: 1, color: "#000000" },
+          ],
+        },
+        type: "dots",
+      },
+      cornersSquareOptions: {
+        color: "black",
+        type: "extra-rounded",
+      },
+      backgroundOptions: {
+        color: "#e9ebee",
+      },
+      imageOptions: {
+        crossOrigin: "anonymous",
+      },
+    };
+    setQrOptions(newOptions);
+    // update qr code ref styling
+    if (qrCode) {
+      qrCode.update(newOptions);
+    }
+  }, [color]);
 
   const useQRCodeStyling = (options: Options): QRCodeStyling | null => {
     //Only do this on the client
@@ -110,7 +165,7 @@ export default function QRCode(props: QRCodeProps) {
         style={{ borderColor: color }}
       >
         {name && (
-          <p className="font-bold text-gray-900 dark:text-white text-center">
+          <p className="font-bold text-gray-900 dark:text-white text-center text-xl">
             {name}
           </p>
         )}
@@ -131,6 +186,13 @@ export default function QRCode(props: QRCodeProps) {
             Copy address to clipboard
           </p>
         )}
+      </div>
+      <div
+        className="flex flex-row space-x-2 mx-auto max-w-fit mt-4 hover:cursor-pointer bg-gray-100/20 dark:bg-gray-900/80 rounded-lg p-2"
+        onClick={() => handleSharePage()}
+      >
+        <AiOutlineShareAlt size={20} className="my-auto" />
+        <p style={{ color: color }}>Share Payment URL</p>
       </div>
     </div>
   );
