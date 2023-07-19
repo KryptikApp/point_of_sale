@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import ColorPicker from "./ColorPicker";
 import Menu from "./Nav/Menu";
 import Navbar from "./Nav/Navbar";
+import VerticalSpace from "./VerticalSpace";
 
 // TODO: Update to support dynamic headers
 export default function Layout({ children }: any) {
@@ -26,9 +27,8 @@ export default function Layout({ children }: any) {
             <ColorPicker />
           </div>
         </div>
-        <div className="min-h-[10vh] md:min-h-[4vh]" />
+        <VerticalSpace size={2} />
         {children}
-        <div className="min-h-[10vh] md:min-h-0"></div>
         <Toaster />
       </main>
     </>
