@@ -1,10 +1,12 @@
-import { HttpAgent, Actor, Identity } from "@dfinity/agent";
+import { Actor, Identity } from "@dfinity/agent";
 import { AuthClient } from "@dfinity/auth-client";
-import { idlFactory } from "../declarations/frontend";
 import { _SERVICE } from "../declarations/frontend/frontend.did";
-import { use, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IMerchant } from "./types";
 import { makeMerchantBackendActor } from "../helpers/actors";
+import { removeAllSpaces } from "../utils/text";
+import { Transaction } from "../types/transaction";
+import { toast } from "react-hot-toast";
 
 export interface ILoginResponse {
   success: boolean;
@@ -17,6 +19,9 @@ export function useAuth() {
   const [merchant, setMerchant] = useState<IMerchant | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [merchantActor, setMerchantActor] = useState<any | null>(null);
+  const [txs, setTxs] = useState<Transaction[]>([]);
+  const [lastTxFetchTime, setLastTxFetchTime] = useState<Date | null>(null);
+  const txDataWorker = useRef<Worker>();
 
   /**
    * Handle authenticated response
@@ -38,7 +43,6 @@ export function useAuth() {
       console.error("Default agent not found. Cannot replace identity.");
       return { success: false, newMerchant: null };
     }
-    console.log("Identity: ", identity);
     defaultAgent.replaceIdentity(identity);
     setMerchantActor(newMerchantActor);
     let newMerchant: IMerchant;
@@ -47,15 +51,35 @@ export function useAuth() {
       const res = await newMerchantActor.get();
       newMerchant = res.data[0];
       newMerchant.id = identity.getPrincipal().toString();
+      newMerchant.loggedIn = true;
       console.log("Merchant found: ", newMerchant);
     } catch (e) {
       console.warn("Merchant not initialized. Creating local version.");
       newMerchant = {
         id: identity.getPrincipal().toString(),
+        loggedIn: true,
       };
     }
+    // clear and initialize data workers
+    clearDataWorkers();
+    initDataWorkers(newMerchant.id);
     setMerchant(newMerchant);
     return { success: true, newMerchant };
+  }
+
+  /**
+   * Start data workers
+   * @param accountId ckBtc account id
+   */
+  function initDataWorkers(accountId: string) {
+    // init tx data worker
+    txDataWorker.current = new Worker(
+      new URL("../workers/txDataWorker.ts", import.meta.url)
+    );
+    txDataWorker.current.postMessage({ accountId: accountId });
+    txDataWorker.current.onmessage = (msg) => {
+      haandleTxDataMsg(msg);
+    };
   }
 
   /**
@@ -70,6 +94,44 @@ export function useAuth() {
     setAuthClient(newAuthClient);
     setLoading(false);
     return newAuthClient;
+  }
+
+  /**
+   * Handle message from tx data worker
+   * @param msg message event
+   */
+  function haandleTxDataMsg(msg: MessageEvent) {
+    // pull txs from message
+    const newTxs: Transaction[] = msg.data.txs;
+    if (newTxs.length > txs.length) {
+      const lastTx = newTxs[newTxs.length - 1];
+      notifyClient(lastTx);
+    }
+    setLastTxFetchTime(new Date());
+    setTxs(newTxs);
+  }
+
+  function notifyClient(tx: Transaction) {
+    let msg = "";
+    if (tx.incoming) {
+      msg = `Incoming transaction of ${tx.amount} ${tx.ticker}`;
+    } else {
+      msg = `Outgoing transaction of ${tx.amount} ${tx.ticker}`;
+    }
+    toast.success(msg, { duration: 5000, icon: "💰" });
+    // play sound
+    const audio = new Audio("../sounds/txChime.mp3");
+    audio.play();
+  }
+
+  /**
+   * Clear data workers
+   */
+  function clearDataWorkers() {
+    if (txDataWorker.current) {
+      txDataWorker.current.terminate();
+      txDataWorker.current = undefined;
+    }
   }
 
   /**
@@ -124,16 +186,20 @@ export function useAuth() {
    * Logout the current user
    * @returns true if logout was successful, false otherwise
    */
-  function logout(): boolean {
+  async function logout(): Promise<boolean> {
     let success = false;
     try {
-      authClient?.logout();
+      await authClient?.logout();
       success = true;
     } catch (e) {
       // pass for now
     }
     setMerchant(null);
     setLoading(false);
+    setAuthClient(null);
+    setMerchantActor(null);
+    // clear tx data worker
+    clearDataWorkers();
     return success;
   }
 
@@ -147,19 +213,31 @@ export function useAuth() {
       console.error("Merchant actor not initialized. Cannot update merchant.");
       return false;
     }
-    // format the merchant for persisisence
+    // format slug
+    let slugToUpload = "";
+    if (merchant?.businessName) {
+      slugToUpload = removeAllSpaces(merchant?.businessName);
+    }
+    // format the merchant for persistence
     const merchantToUpload = {
       businessName: newMerchant.businessName,
       phoneNumber: newMerchant.phoneNumber,
       phoneNotifications: newMerchant.phoneNotifications,
+      slug: slugToUpload,
+      id: newMerchant.id,
     };
     if (merchant) {
       newMerchant.id = merchant.id;
     }
-
+    console.log("Trying to upload the following merchant:");
+    console.log(newMerchant);
     try {
       const res = await merchantActor.update(merchantToUpload);
       console.log("Merchant updated with result: ", res);
+      newMerchant.loggedIn = true;
+      if (res.data[0] && res.data[0].slug) {
+        newMerchant.slug = res.data[0].slug;
+      }
       setMerchant(newMerchant);
       return true;
     } catch (e) {
@@ -168,9 +246,42 @@ export function useAuth() {
       return false;
     }
   }
+  /**
+   * Updates the local state with new transactions and current time
+   * @param newTxs new transactions to update the local state with
+   */
+  function updateTxs(newTxs: Transaction[]) {
+    setTxs(newTxs);
+    setLastTxFetchTime(new Date());
+  }
+
+  function updateLocalMerchant(newMerchant: IMerchant) {
+    // clear old tx data workers
+    clearDataWorkers();
+    // init new tx data workers
+    initDataWorkers(newMerchant.id);
+    // update local merchant
+    setMerchant(newMerchant);
+    // reset auth client and backend connector which are linked to identity
+    setMerchantActor(null);
+    setAuthClient(null);
+  }
+
   useEffect(() => {
     init();
   }, []);
 
-  return { authClient, merchant, login, loading, updateMerchant, logout };
+  return {
+    authClient,
+    merchant,
+    login,
+    loading,
+    updateMerchant,
+    logout,
+    setMerchant,
+    txs,
+    lastTxFetchTime,
+    updateLocalMerchant,
+    updateTxs,
+  };
 }

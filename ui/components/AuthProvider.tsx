@@ -3,14 +3,19 @@ import { ILoginResponse, useAuth } from "../auth";
 
 import { AuthClient } from "@dfinity/auth-client";
 import { IMerchant } from "../auth/types";
+import { Transaction } from "../types/transaction";
 
 interface IAuthContext {
   merchant: IMerchant | null;
   loading: boolean;
   login: (doneHandler: (res: ILoginResponse) => any) => any;
-  logout: () => boolean;
+  logout: () => Promise<boolean>;
   authClient: AuthClient | null;
   updateMerchant: (merhchant: IMerchant) => Promise<boolean>;
+  updateLocalMerchant: (merhchant: IMerchant) => any;
+  txs: Transaction[];
+  updateTxs: (txs: Transaction[]) => any;
+  lastTxFetchTime: Date | null;
 }
 
 const AuthContext = createContext<IAuthContext>({
@@ -19,7 +24,11 @@ const AuthContext = createContext<IAuthContext>({
   login: (doneHandler: (res: ILoginResponse) => {}) => {},
   authClient: null,
   updateMerchant: async (merchant: IMerchant) => false,
-  logout: () => false,
+  logout: async () => false,
+  updateLocalMerchant: () => {},
+  txs: [],
+  updateTxs: () => {},
+  lastTxFetchTime: null,
 });
 
 export function AuthProvider(props: any) {
