@@ -73,9 +73,13 @@ export default function Profile() {
         <div className="flex flex-col space-y-2 px-1">
           <IdPill id={merchant?.id || ""} />
           <p className="text-md text-gray-500">Name</p>
-          <p className="text-2xl">{merchant?.businessName}</p>
+          <p className="text-2xl">{merchant?.businessName || "N/A"}</p>
           <p className="text-md text-gray-500">Phone Number</p>
-          <PhoneNumberPill number={merchant?.phoneNumber || ""} />
+          {!merchant?.phoneNumber ? (
+            <p className="text-2xl">{merchant?.businessName || "N/A"}</p>
+          ) : (
+            <PhoneNumberPill number={merchant?.phoneNumber || ""} />
+          )}
         </div>
       </div>
       <p
