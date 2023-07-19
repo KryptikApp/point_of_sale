@@ -257,7 +257,7 @@ export default function Send() {
 
       {progress != PAYMENT_PROGRESS.START && (
         <button
-          className="w-full h-12 px-4 py-2 text-base text-gray-700 hover:text-yellow-500 rounded-lg focus:outline-none"
+          className="w-full h-12 px-4 py-2 text-base text-gray-700 hover:text-green-500 rounded-lg focus:outline-none"
           onClick={handleBack}
         >
           Back
