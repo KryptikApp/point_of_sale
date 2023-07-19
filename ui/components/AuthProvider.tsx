@@ -4,9 +4,11 @@ import { ILoginResponse, useAuth } from "../auth";
 import { AuthClient } from "@dfinity/auth-client";
 import { IMerchant } from "../auth/types";
 import { Transaction } from "../types/transaction";
+import { Agent } from "@dfinity/agent";
 
 interface IAuthContext {
   merchant: IMerchant | null;
+  agent: Agent | null;
   loading: boolean;
   login: (doneHandler: (res: ILoginResponse) => any) => any;
   logout: () => Promise<boolean>;
@@ -20,6 +22,7 @@ interface IAuthContext {
 
 const AuthContext = createContext<IAuthContext>({
   merchant: null,
+  agent: null,
   loading: false,
   login: (doneHandler: (res: ILoginResponse) => {}) => {},
   authClient: null,

@@ -1,4 +1,4 @@
-import { Actor, Identity } from "@dfinity/agent";
+import { Actor, Agent, Identity } from "@dfinity/agent";
 import { AuthClient } from "@dfinity/auth-client";
 import { _SERVICE } from "../declarations/frontend/frontend.did";
 import { useEffect, useRef, useState } from "react";
@@ -21,6 +21,7 @@ export function useAuth() {
   const [merchantActor, setMerchantActor] = useState<any | null>(null);
   const [txs, setTxs] = useState<Transaction[]>([]);
   const [lastTxFetchTime, setLastTxFetchTime] = useState<Date | null>(null);
+  const [agent, setAgent] = useState<Agent | null>(null);
   const txDataWorker = useRef<Worker>();
 
   /**
@@ -38,12 +39,13 @@ export function useAuth() {
     const identity: Identity = authClient.getIdentity();
     // create a new actor to communicate with mertchant backend
     const newMerchantActor = makeMerchantBackendActor();
-    const defaultAgent = Actor.agentOf(newMerchantActor);
+    const defaultAgent: Agent | undefined = Actor.agentOf(newMerchantActor);
     if (!defaultAgent || !defaultAgent.replaceIdentity) {
       console.error("Default agent not found. Cannot replace identity.");
       return { success: false, newMerchant: null };
     }
     defaultAgent.replaceIdentity(identity);
+    setAgent(defaultAgent);
     setMerchantActor(newMerchantActor);
     let newMerchant: IMerchant;
     // try to get the merchant
@@ -105,7 +107,13 @@ export function useAuth() {
     const newTxs: Transaction[] = msg.data.txs;
     if (newTxs.length > txs.length) {
       const lastTx = newTxs[newTxs.length - 1];
-      notifyClient(lastTx);
+      if (lastTx.created_at_time) {
+        const lastTxTime = new Date(lastTx.created_at_time);
+        // only notify if the tx is newer than five minutes
+        if (lastTxTime.getTime() > new Date().getTime() - 5 * 60 * 1000) {
+          notifyClient(lastTx);
+        }
+      }
     }
     setLastTxFetchTime(new Date());
     setTxs(newTxs);
@@ -198,6 +206,7 @@ export function useAuth() {
     setLoading(false);
     setAuthClient(null);
     setMerchantActor(null);
+    setAgent(null);
     // clear tx data worker
     clearDataWorkers();
     return success;
@@ -265,6 +274,7 @@ export function useAuth() {
     // reset auth client and backend connector which are linked to identity
     setMerchantActor(null);
     setAuthClient(null);
+    setAgent(null);
   }
 
   useEffect(() => {
@@ -272,6 +282,7 @@ export function useAuth() {
   }, []);
 
   return {
+    agent,
     authClient,
     merchant,
     login,
