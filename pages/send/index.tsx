@@ -90,7 +90,7 @@ export default function Send() {
         toast.error("Amount must be greater than 0");
         return { valid: false, amountNum: 0 };
       }
-      if (balance && amountNum > balance) {
+      if (balance != null && amountNum > balance) {
         toast.error("Insufficient balance");
         return { valid: false, amountNum: 0 };
       }
