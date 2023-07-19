@@ -104,8 +104,8 @@ export default function Index() {
     if (loadingLogin) return;
     // show logged in merchant profile page
     if (!loading && merchant && merchant.loggedIn) {
-      router.push("/profile");
       toast("Logging you in...", { position: "bottom-center" });
+      router.push("/profile");
     }
     // show non logged in merchant receive page
     if (!loading && merchant && !merchant.loggedIn) {
