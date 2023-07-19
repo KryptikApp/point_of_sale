@@ -25,6 +25,7 @@
     "env-cmd": "^10.1.0",
     "eslint": "8.44.0",
     "eslint-config-next": "13.4.9",
+    "fathom-client": "^3.5.0",
     "framer-motion": "^10.12.22",
     "next": "13.4.9",
     "next-themes": "^0.2.1",
