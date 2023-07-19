@@ -168,7 +168,7 @@ export default function Send() {
       <VerticalSpace />
       <div>
         {progress != PAYMENT_PROGRESS.DONE && (
-          <div className="flex flex-row space-x-3">
+          <div className="flex flex-row space-x-3 mb-2">
             <h1 className="text-2xl font-bold">Send</h1>
             <img src="/tokens/ckBtc.svg" className="w-8 h-8 my-auto" />
           </div>
