@@ -3,8 +3,6 @@ import LoadingSpinner from "@/ui/components/LoadingSpinner";
 import { useThemeContext } from "@/ui/components/ThemeProvider";
 import TxOverview from "@/ui/components/TxOverview";
 import { fetchCkBtcTransactions } from "@/ui/requests/transaction";
-import { Transaction } from "@/ui/types/transaction";
-import { m } from "framer-motion";
 import { useEffect, useState } from "react";
 import { AiOutlineRedo } from "react-icons/ai";
 
