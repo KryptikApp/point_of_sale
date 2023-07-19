@@ -22,11 +22,13 @@ import Int "mo:base/Int";
 
 import Types "TypesHttp";
 
-actor class Main(_smsApiKey : Text) {
+actor class Main(_smsApiKey : Text, _test:Text) {
     type Merchant = {
+        id:Text;
         businessName : Text;
         phoneNotifications : Bool;
         phoneNumber : Text;
+        slug : Text;
     };
 
     type Response = {
@@ -43,9 +45,17 @@ actor class Main(_smsApiKey : Text) {
         error_text : ?Text;
     };
 
+    type ResponseBool = {
+        status : Nat16;
+        status_text : Text;
+        data : Bool;
+        error_text : ?Text;
+    };
+
     private stable var merchantStore : Trie.Trie<Text, Merchant> = Trie.empty();
     // save the SMS API key
     private stable let smsApiKey : Text = _smsApiKey;
+    private stable let test : Text = _test;
   
     /**
     * Fetch the merchant's information
@@ -85,17 +95,35 @@ actor class Main(_smsApiKey : Text) {
     * @note - the merchant's information is stored in the merchantStore data structure
     */
     public shared (msg) func update(merchant : Merchant) : async Response {
+        let caller : Principal = msg.caller;
+        Debug.print("Updating merchant with caller: " # Principal.toText(caller));
+        // generate a random number between 0 and 100
+        let randomNumber = await generateRandomNumber(100029);
+        let newSlug = Text.concat(merchant.slug, Int.toText(randomNumber));
+        Debug.print("SLUG:" # newSlug);
         let newMerchant : Merchant = {
         businessName = merchant.businessName;
         phoneNotifications = merchant.phoneNotifications;
         phoneNumber = merchant.phoneNumber;
+        slug = newSlug;
+        id = Principal.toText(caller);
         };
-        let caller : Principal = msg.caller;
+        let res = await isSlugAvailable(newSlug);
+        // slug must be unique
+        if(merchant.slug!="" and res.data == false){
+            return({
+            status = 400;
+            status_text = "Bad Request";
+            data = null;
+            error_text = ?("Slug: " # merchant.slug # " is not unique.");
+            });
+        };
+        Debug.print("Passed slug check");
         merchantStore := Trie.replace(
         merchantStore,
         key(Principal.toText(caller)),
         Text.equal,
-        ?merchant,
+        ?newMerchant,
         ).0;
         if(merchant.phoneNotifications) {
             // send welcome message to merchant via sms (if enabled)
@@ -104,10 +132,81 @@ actor class Main(_smsApiKey : Text) {
         {
         status = 200;
         status_text = "OK";
-        data = ?merchant;
+        data = ?newMerchant;
         error_text = null;
         };
     };
+
+    public func getMerchantBySlug(slugKey:Text): async Response{
+    let isAvailable:Bool = false;
+    if(slugKey==""){
+          return({
+        status = 404;
+        status_text = "Not Found";
+        data = null;
+        error_text = ?("Merchant with slug: " # slugKey # " not found.");
+    })
+    };
+    for (kv in Trie.iter(merchantStore)) {
+        let (key, value) = kv;
+        // add non sensitive data to the response
+        if(value.slug == slugKey){
+            let merchantToReturn = {
+                businessName =value.businessName;
+                phoneNotifications = false;
+                phoneNumber = "";
+                slug =value.slug;
+                id = value.id;
+            };
+            return({
+            status = 200;
+            status_text = "OK";
+            data = ?merchantToReturn;
+            error_text = null;
+            })
+        };
+        };
+    return({
+        status = 404;
+        status_text = "Not Found";
+        data = null;
+        error_text = ?("Merchant with slug: " # slugKey # " not found.");
+    })
+    };
+  
+
+  public func isSlugAvailable(slug:Text): async ResponseBool{
+     let isAvailable:Bool = true;
+     if(slug == ""){
+        return
+        {
+        status = 200;
+        status_text = "OK";
+        data = false;
+        error_text = null;
+        };
+     };
+     for (kv in Trie.iter(merchantStore)) {
+        let (key, value) = kv;
+        // add non sensitive data to the response
+        if(value.slug == slug){
+            Debug.print("SLUG not Available");
+            return
+            {
+            status = 200;
+            status_text = "OK";
+            data = false;
+            error_text = null;
+            }
+        };
+    };
+    {
+        status = 200;
+        status_text = "OK";
+        data = true;
+        error_text = null;
+    }
+  };
 
     /**
     * Sends a welcome notification via sms
@@ -118,6 +217,9 @@ actor class Main(_smsApiKey : Text) {
        let body:Text = "{\"message\": {\"to\": {\"phone_number\": \"" #number# "\"},\"template\": \"TAG9DKR39N4KA7NN2THGEFDW3CYM\",\"data\": {\"recipientName\": \" " #name# "\"}}}";
         
         let res:Text = await sendSMS(body, name);
+        // debug print args
+        Debug.print(_smsApiKey);
+        Debug.print(test);
         
         {
         status = 200;
@@ -176,20 +278,18 @@ actor class Main(_smsApiKey : Text) {
     // Build The HTTP request
     let http_request : Types.HttpRequestArgs = {
         url = url;
-        max_response_bytes = null; //optional for request
+        max_response_bytes = ?Nat64.fromNat(1000);
         headers = requestHeaders;
         body = ?requestBodyAsNat8;
         method = #post;
         transform = null; //optional for request
     };
-
-    // ADD CYCLES TO PAY FOR HTTP REQUEST
-    //IC management canister will make the HTTP request so it needs cycles
-    //See: https://internetcomputer.org/docs/current/motoko/main/cycles
     
-    //The way Cycles.add() works is that it adds those cycles to the next asynchronous call
-    //See: https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-http_request
-    Cycles.add(17_000_000_000);
+    // Add cycles to the next async call (in this case HTTP request)
+    // 49.14M + 5200 * request_size + 10400 * max_response_bytes
+    // 49.14M + (5200 * 1000) + (10400 * 1000) = 64.74M
+    // calculations from 
+    Cycles.add(70_000_000);
     
     // MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
     //Since the cycles were added above, we can just call the IC management canister with HTTPS outcalls below
@@ -208,7 +308,7 @@ actor class Main(_smsApiKey : Text) {
     * Generates a random string
     * @param name - relevenat name (included as part of the resulting string)
   */
-  private func generateRandomString(name:Text) : async Text {
+  public func generateRandomString(name:Text) : async Text {
     let newnow = Time.now();
     // use current time as a seed
     let seed = Int.toText(newnow);
@@ -216,6 +316,11 @@ actor class Main(_smsApiKey : Text) {
 
     // formatted string
     return "POS" # randomString # "POS" #name# "POS";
+  };
+
+  public func generateRandomNumber(maxNum:Int):async Int{
+    let newnow = Time.now();
+    return newnow % maxNum;
   };
     
 }
