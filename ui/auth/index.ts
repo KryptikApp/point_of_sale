@@ -137,7 +137,7 @@ export function useAuth() {
     // if(merchant && merchant.loggedIn && merchant.phoneNotifications){
     //   const body = {
     //     name: merchant.businessName,
-    //     number: merchant.phoneNumber,
+    //     phoneNumber: merchant.phoneNumber,
     //     amount: formattedAmount
     //   }
     //   KryptikFetch("/api/notify/newTx", { body: JSON.stringify(body), method: "POST", headers: { "Content-Type": "application/json" }});
@@ -267,7 +267,7 @@ export function useAuth() {
       if (newMerchant.phoneNumber) {
         const body = {
           name: merchantToUpload.businessName,
-          number: merchantToUpload.phoneNumber,
+          phoneNumber: merchantToUpload.phoneNumber,
         };
         try {
           console.log("Notifying merchant with body: ", body);
