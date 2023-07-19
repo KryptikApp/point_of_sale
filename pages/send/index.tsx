@@ -50,11 +50,11 @@ export default function Send() {
         throw new Error("No response from ledger");
       }
       setProgressPercent(100);
+      setProgress(PAYMENT_PROGRESS.DONE);
     } catch (e) {
       console.error(e);
       toast.error("Error sending payment");
     }
-    setProgress(PAYMENT_PROGRESS.DONE);
     setLoadingSend(false);
   }
 
@@ -133,18 +133,17 @@ export default function Send() {
     }
   }
 
-  async function handleGetBalance() {
-    if (!ledgerCanister || !merchant?.id) {
+  async function handleGetBalance(ledgerCanisterToUse: IcrcLedgerCanister) {
+    if (!merchant?.id) {
       return;
     }
     try {
-      const newBalance = await getBalance(ledgerCanister, merchant.id);
+      const newBalance = await getBalance(ledgerCanisterToUse, merchant.id);
       const newBalanceNum = Number(newBalance.toString());
       console.log("Balance Value:", newBalanceNum);
       setBalance(newBalanceNum);
     } catch (e) {
       console.error(e);
-      toast.error("Error getting balance");
     }
   }
 
@@ -157,7 +156,7 @@ export default function Send() {
     try {
       const newLedger = makeCkBtcLedger(agent);
       setLedgerCanister(newLedger);
-      handleGetBalance();
+      handleGetBalance(newLedger);
     } catch (e) {
       console.warn(e);
     }
