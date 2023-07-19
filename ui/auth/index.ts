@@ -274,10 +274,14 @@ export function useAuth() {
           const res = await KryptikFetch("/api/notify/welcome", {
             body: JSON.stringify(body),
             timeout: 8000,
+            method: "POST",
             headers: { "Content-Type": "application/json" },
           });
+          console.log("Notified merchant with response: ", res);
         } catch (e) {
           console.warn("Error notifying merchant");
+          console.error("ERROR:");
+          console.warn(e);
         }
       }
       setMerchant(newMerchant);
