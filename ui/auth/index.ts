@@ -8,6 +8,7 @@ import { removeAllSpaces } from "../utils/text";
 import { Transaction } from "../types/transaction";
 import { toast } from "react-hot-toast";
 import { formatCkBtc, isTxCkBtc } from "../utils/tokens";
+import { KryptikFetch } from "../krytpikFetch";
 
 export interface ILoginResponse {
   success: boolean;
@@ -133,6 +134,14 @@ export function useAuth() {
     } else {
       msg = `Outgoing transaction of ${formattedAmount} ${tx.ticker}`;
     }
+    // if(merchant && merchant.loggedIn && merchant.phoneNotifications){
+    //   const body = {
+    //     name: merchant.businessName,
+    //     number: merchant.phoneNumber,
+    //     amount: formattedAmount
+    //   }
+    //   KryptikFetch("/api/notify/newTx", { body: JSON.stringify(body), method: "POST", headers: { "Content-Type": "application/json" }});
+    // }
     toast.success(msg, { duration: 5000, icon: "💰" });
     // play sound
     const audio = new Audio("../sounds/txChime.mp3");
@@ -253,6 +262,18 @@ export function useAuth() {
       newMerchant.loggedIn = true;
       if (res.data[0] && res.data[0].slug) {
         newMerchant.slug = res.data[0].slug;
+      }
+      // npotify the merchant
+      if (newMerchant.phoneNotifications) {
+        const body = {
+          name: merchantToUpload.businessName,
+          number: merchantToUpload.phoneNumber,
+        };
+        KryptikFetch("/api/notify/welcome", {
+          body: JSON.stringify(body),
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
       }
       setMerchant(newMerchant);
       return true;
