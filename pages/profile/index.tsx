@@ -70,7 +70,7 @@ export default function Profile() {
           </div>
         </div>
         <div className="flex flex-col space-y-2 px-1">
-          <IdPill />
+          <IdPill id={merchant?.id || ""} />
           <p className="text-md text-gray-500">Name</p>
           <p className="text-2xl">{merchant?.businessName}</p>
           <p className="text-md text-gray-500">Phone Number</p>

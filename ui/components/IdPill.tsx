@@ -3,11 +3,15 @@ import { useThemeContext } from "./ThemeProvider";
 import { useAuthContext } from "./AuthProvider";
 import { trimPrincipal } from "../utils/identity";
 
-export default function IdPill() {
+interface IIdPillProps {
+  id: string;
+}
+export default function IdPill(props: IIdPillProps) {
+  const { id } = props;
   const { merchant } = useAuthContext();
   const { primaryColor } = useThemeContext();
   const handleCopy = () => {
-    navigator.clipboard.writeText(merchant?.id || "");
+    navigator.clipboard.writeText(id);
     toast.success("ID copied to clipboard.");
   };
   return (
@@ -19,7 +23,7 @@ export default function IdPill() {
         className="flex flex-row space-x-2 px-2 py-1 rounded-lg dark:bg-gray-700/60 bg-gray-200/60 hover:cursor-pointer text-2xl w-fit hover:text-green-400"
         onClick={() => handleCopy()}
       >
-        {trimPrincipal(merchant?.id || "")}
+        {trimPrincipal(id)}
       </div>
     </div>
   );
