@@ -139,7 +139,9 @@ export default function Send() {
     }
     try {
       const newBalance = await getBalance(ledgerCanister, merchant.id);
-      setBalance(Number(newBalance.toString()));
+      const newBalanceNum = Number(newBalance.toString());
+      console.log("Balance Value:", newBalanceNum);
+      setBalance(newBalanceNum);
     } catch (e) {
       console.error(e);
       toast.error("Error getting balance");
