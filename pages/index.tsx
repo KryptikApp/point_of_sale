@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import { ILoginResponse } from "@/ui/auth";
 import { formatPrincipalInput, isValidPrincipal } from "@/ui/utils/identity";
+import VerticalSpace from "@/ui/components/VerticalSpace";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +22,7 @@ export default function Index() {
     QUICKSTART_PROGRESS.START
   );
   const { primaryColor } = useThemeContext();
-  const { merchant, loading, login } = useAuthContext();
+  const { merchant, loading, login, updateLocalMerchant } = useAuthContext();
   const [serverMessage, setServerMessage] = useState<null | string>(null);
   const [businessName, setBusinessName] = useState("");
 
@@ -36,6 +37,14 @@ export default function Index() {
     const newAddress = formatPrincipalInput(address);
     setAddress(newAddress);
     setProgress(QUICKSTART_PROGRESS.SHOW_QR_CODE);
+    // add temporary merchant to state (temp since not logged in w/ backend)
+    const newMerchant = {
+      id: newAddress,
+      businessName: businessName,
+      loggedIn: false,
+    };
+    // update local state with new merchant
+    updateLocalMerchant(newMerchant);
   }
 
   function handleNewBusinessName(name: string) {
@@ -53,11 +62,15 @@ export default function Index() {
       return;
     }
     // if already has merchant, redirect to profile
-    if (newMerchant) {
+    if (newMerchant && newMerchant.loggedIn && newMerchant.businessName) {
+      console.log("LOGIN SUCCESS");
+      console.log(newMerchant);
       router.push("/profile");
     }
     // else direct to creation flow
     else {
+      console.log("LOGIN SUCCESS BUT NO MERCHANT");
+      console.log(newMerchant);
       router.push("/profile/update");
     }
   }
@@ -86,11 +99,24 @@ export default function Index() {
     }
   }
 
+  useEffect(() => {
+    // show logged in merchant profile page
+    if (!loading && merchant && merchant.loggedIn) {
+      router.push("/profile");
+      toast("Logging you in...", { position: "bottom-center" });
+    }
+    // show non logged in merchant receive page
+    if (!loading && merchant && !merchant.loggedIn) {
+      router.push("/receive");
+    }
+  }, []);
+
   return (
     <div className="mx-auto max-w-2xl">
+      <VerticalSpace />
       {progress === QUICKSTART_PROGRESS.START && (
         <div className="text-center flex-col space-y-2">
-          <h1 className="text-3xl">Zap Pay</h1>
+          <h1 className="text-3xl">Kryptik Pay</h1>
           <p className="text-gray-400">A simple way to accept payments.</p>
           <button
             className="w-full h-12 px-4 py-2 text-gray-900 bg-gray-200 rounded-lg text-2xl font-semibold"
