@@ -14,3 +14,11 @@ export enum SETUP_PROGRESS {
   ENTER_PHONE_NUMBER = "enter_phone_number",
   REVIEW = "review",
 }
+
+export enum PAYMENT_PROGRESS {
+  // start
+  START = "start",
+  ENTER_RECEIVER = "enter_receiver",
+  ENTER_AMOUNT = "enter_amount",
+  REVIEW = "review",
+}
