@@ -97,26 +97,30 @@ actor class Main(_smsApiKey : Text, _test:Text) {
     public shared (msg) func update(merchant : Merchant) : async Response {
         let caller : Principal = msg.caller;
         Debug.print("Updating merchant with caller: " # Principal.toText(caller));
-        // generate a random number between 0 and 100
+        let res = await isSlugAvailable(merchant.slug);
+        // generate a pseudo andom number between 0 and 100029
         let randomNumber = await generateRandomNumber(100029);
-        let newSlug = Text.concat(merchant.slug, Int.toText(randomNumber));
-        Debug.print("SLUG:" # newSlug);
+        var newSlug = "";
+        // if slug is not available, append a random number to the slug
+        // NOTE: THERE IS STILL A CHANCE FOR A COLLISION
+        // IF TWO MERCHANTS HAVE THE SAME SLUG AND DRAW THE SAME RANDOM NUMBER
+        if(res.data == false){
+            newSlug := Text.concat(merchant.slug, Int.toText(randomNumber));
+        }
+        else{
+            newSlug := merchant.slug;
+        };
+        // ensure that the slug is not empty
+        if(newSlug == ""){
+            newSlug := Principal.toText(caller);
+        };
+        Debug.print("NEW SLUG:" # newSlug);
         let newMerchant : Merchant = {
         businessName = merchant.businessName;
         phoneNotifications = merchant.phoneNotifications;
         phoneNumber = merchant.phoneNumber;
         slug = newSlug;
         id = Principal.toText(caller);
-        };
-        let res = await isSlugAvailable(newSlug);
-        // slug must be unique
-        if(merchant.slug!="" and res.data == false){
-            return({
-            status = 400;
-            status_text = "Bad Request";
-            data = null;
-            error_text = ?("Slug: " # merchant.slug # " is not unique.");
-            });
         };
         Debug.print("Passed slug check");
         merchantStore := Trie.replace(
@@ -220,7 +224,7 @@ actor class Main(_smsApiKey : Text, _test:Text) {
         // debug print args
         Debug.print(_smsApiKey);
         Debug.print(test);
-        
+
         {
         status = 200;
         status_text = "OK";
