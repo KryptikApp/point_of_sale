@@ -12,7 +12,7 @@ export default function IdPill() {
   };
   return (
     <div
-      className="opacity-20 hover:opacity-100 rounded-lg border w-fit"
+      className="opacity-60 hover:opacity-100 rounded-lg border w-fit"
       style={{ borderColor: primaryColor }}
     >
       <div
