@@ -85,11 +85,16 @@ export default function Index() {
     <div className="mx-auto max-w-2xl">
       <VerticalSpace />
       {progress === SETUP_PROGRESS.ENTER_BUSINESS_NAME && (
-        <InputText
-          placeholder={newBusinessname}
-          onDone={handleBusinessNameDone}
-          color={primaryColor}
-        />
+        <div>
+          <InputText
+            placeholder={newBusinessname}
+            onDone={handleBusinessNameDone}
+            color={primaryColor}
+          />
+          <p className="dark:text-gray-500 text-gray-400 text-lg">
+            Add your business name to brand your payment page.
+          </p>
+        </div>
       )}
       {progress === SETUP_PROGRESS.ENTER_PHONE_NUMBER && (
         <div>
