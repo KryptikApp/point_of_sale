@@ -19,8 +19,10 @@ export default function Receive() {
     if (!merchant?.loggedIn) {
       return;
     }
-    const newPaymentPageUrl = `${window.location.origin}/pay/?to=${merchant?.slug}`;
-    setPaymentPageUrl(newPaymentPageUrl);
+    if (merchant.slug != undefined && merchant.slug != "") {
+      const newPaymentPageUrl = `${window.location.origin}/pay/?to=${merchant?.slug}`;
+      setPaymentPageUrl(newPaymentPageUrl);
+    }
   }, [merchant, loading]);
   return (
     <div>
