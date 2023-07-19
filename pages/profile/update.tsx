@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import InputText from "@/ui/components/InputText";
 import { SETUP_PROGRESS } from "@/ui/types/flow";
 import LoadingSpinner from "@/ui/components/LoadingSpinner";
+import VerticalSpace from "@/ui/components/VerticalSpace";
 
 export default function Index() {
   const { merchant, loading, login, updateMerchant } = useAuthContext();
@@ -82,6 +83,7 @@ export default function Index() {
   }
   return (
     <div className="mx-auto max-w-2xl">
+      <VerticalSpace />
       {progress === SETUP_PROGRESS.ENTER_BUSINESS_NAME && (
         <InputText
           placeholder={newBusinessname}
