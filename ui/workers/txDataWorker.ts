@@ -2,6 +2,7 @@
 
 import { Transaction, defaultTx } from "../types/transaction";
 import { fetchCkBtcTransactions } from "../requests/transaction";
+import { trimPrincipal } from "../utils/identity";
 
 /**
  * Handles the polling of the ledger for new transactions
@@ -25,7 +26,9 @@ onmessage = async (msg) => {
   // every 30 seconds, poll the ledger for new transactions
   // send response to main thread
   setInterval(() => {
-    console.log("Polling for new transactions...");
+    console.log(
+      `Polling for new transactions with principal id ${trimPrincipal(id)}`
+    );
     handleTxPolling(id);
   }, 30000);
 };

@@ -80,7 +80,7 @@ export function useAuth() {
     );
     txDataWorker.current.postMessage({ accountId: accountId });
     txDataWorker.current.onmessage = (msg) => {
-      haandleTxDataMsg(msg);
+      handleTxDataMsg(msg);
     };
   }
 
@@ -102,17 +102,21 @@ export function useAuth() {
    * Handle message from tx data worker
    * @param msg message event
    */
-  function haandleTxDataMsg(msg: MessageEvent) {
+  function handleTxDataMsg(msg: MessageEvent) {
     // pull txs from message
     const newTxs: Transaction[] = msg.data.txs;
+    console.log("Polling Result: ", newTxs);
     if (newTxs.length > txs.length) {
       const lastTx = newTxs[newTxs.length - 1];
+      // try to only notify if the tx is new
       if (lastTx.created_at_time) {
         const lastTxTime = new Date(lastTx.created_at_time);
         // only notify if the tx is newer than five minutes
         if (lastTxTime.getTime() > new Date().getTime() - 5 * 60 * 1000) {
           notifyClient(lastTx);
         }
+      } else {
+        notifyClient(lastTx);
       }
     }
     setLastTxFetchTime(new Date());
