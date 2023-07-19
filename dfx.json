@@ -6,7 +6,7 @@
     "frontend": {
       "dependencies": ["merchant_backend"],
       "frontend": {
-        "entrypoint": "build/static/chunks/pages/index.html"
+        "entrypoint": "build/index.html"
       },
       "source": ["build"],
       "type": "assets"
