@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { AnimatePresence, motion } from "framer-motion";
 import { useThemeContext } from "../ThemeProvider";
+import { useAuthContext } from "../AuthProvider";
 
 type Props = {
   children: any;
@@ -19,10 +20,11 @@ const Menu: NextPage<Props> = (props) => {
 
   const { children } = { ...props };
   const { primaryColor } = useThemeContext();
+  const { merchant, loading, logout } = useAuthContext();
 
   // change style based on boolean
   const menuWrapperClassName = isMenuMobile
-    ? "flex flex-col md:flex-row md:ml-auto mt-3 md:mt-0 min-h-[80vh] rounded-lg bg-[#F2FBFE] z-10 border-gray-500 border bg-gray-50 py-4 pl-4 dark:bg-black md:min-h-0 text-2xl space-y-2"
+    ? "flex flex-col md:flex-row md:ml-auto mt-3 md:mt-0 min-h-[80vh] rounded-lg bg-[#F2FBFE] z-10 border-gray-500 border bg-gray-50 py-4 mx-2 pl-4 dark:bg-black md:min-h-0 text-2xl space-y-2"
     : "hidden text-xl md:flex flex-col md:flex-row md:ml-auto mt-3 md:mt-0";
 
   useEffect(() => {
@@ -53,12 +55,16 @@ const Menu: NextPage<Props> = (props) => {
       <div className="md:px-4 mx-auto md:flex md:items-center">
         <div className="flex justify-between items-center hover:cursor-pointer">
           <div onClick={() => setMenuMobile(false)}>
-            <Link href="/">
+            <Link
+              href={
+                merchant && merchant.loggedIn && !loading ? "/profile" : "/"
+              }
+            >
               <span
-                className="font-extrabold text-3xl hover:dark:text-white hover:text-black transition-colors duration-1500"
-                style={{ color: primaryColor }}
+                className="font-extrabold text-3xl text-gray-900 dark:text-gray-100 hover:dark:text-white hover:text-black transition-colors duration-1500 underline"
+                style={{ textDecorationColor: primaryColor }}
               >
-                Zap Pay
+                Kryptik Pay
               </span>
             </Link>
           </div>
@@ -68,7 +74,7 @@ const Menu: NextPage<Props> = (props) => {
             type="button"
             className={`inline-flex ${
               isMenuMobile && "open"
-            } items-center mt-2 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-600`}
+            } items-center mt-2 mr-2 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-600`}
             aria-controls="mobile-menu"
             aria-expanded="false"
           >
