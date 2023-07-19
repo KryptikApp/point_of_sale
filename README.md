@@ -12,7 +12,7 @@
 - Realtime payment alerts
 
 ## Try It!
-Visit [here](https://pay.kryptik.app/) for a live demo.
+Go [here](https://pay.kryptik.app/) for a live demo.
 
 ## Notes
 The production frontend is deployed on Vercel to enable dynamic routes and multiple entry points. Eventually, we would like to host the front end on the Internet Computer.
