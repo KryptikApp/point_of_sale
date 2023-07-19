@@ -10,6 +10,7 @@ export default function Receive() {
   const router = useRouter();
   const { primaryColor } = useThemeContext();
   const [paymentPageUrl, setPaymentPageUrl] = useState<string | null>(null);
+
   useEffect(() => {
     if (loading) return;
     if (!merchant) {
@@ -18,7 +19,7 @@ export default function Receive() {
     if (!merchant?.loggedIn) {
       return;
     }
-    const newPaymentPageUrl = `${window.location.origin}/receive/${merchant?.slug}`;
+    const newPaymentPageUrl = `${window.location.origin}/pay/?to=${merchant?.slug}`;
     setPaymentPageUrl(newPaymentPageUrl);
   }, [merchant, loading]);
   return (
