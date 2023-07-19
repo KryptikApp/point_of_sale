@@ -26,6 +26,7 @@ export default function InputText(props: Props) {
         required
         value={address}
         onChange={(e) => setAddress(e.target.value)}
+        autoFocus={true}
       />
       <button
         type="submit"
