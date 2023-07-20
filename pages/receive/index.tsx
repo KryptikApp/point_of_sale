@@ -32,7 +32,7 @@ export default function Receive() {
   return (
     <div>
       <VerticalSpace />
-      {merchant?.id && (
+      {merchant?.id && merchant.loggedIn && (
         <div>
           {paymentPageUrl ? (
             <QRCode
