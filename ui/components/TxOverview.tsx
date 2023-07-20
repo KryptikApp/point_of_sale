@@ -40,7 +40,7 @@ export default function TxOverview(props: Props) {
             ) : (
               <AiOutlineArrowUp
                 size={24}
-                className="text-lg text-red-500 rotate-45"
+                className="text-lg text-gray-500 rotate-45"
               />
             )}
           </div>
