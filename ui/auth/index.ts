@@ -137,16 +137,23 @@ export function useAuth() {
       msg = `Outgoing transaction of ${formattedAmount} ${tx.ticker}`;
     }
     if (merchant && merchant.loggedIn && merchant.phoneNotifications) {
-      const body = {
-        name: merchant.businessName,
-        phoneNumber: merchant.phoneNumber,
-        amount: formattedAmount,
-      };
-      KryptikFetch("/api/notify/newTx", {
-        body: JSON.stringify(body),
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+      try {
+        const body = {
+          name: merchant.businessName,
+          phoneNumber: merchant.phoneNumber,
+          amount: formattedAmount,
+        };
+        KryptikFetch("/api/notify/newTx", {
+          body: JSON.stringify(body),
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }).then((res) => {
+          console.log("Notified merchant with response: ", res);
+        });
+      } catch (e) {
+        console.error("Error notifying merchant");
+        console.error(e);
+      }
     }
     toast.success(msg, { duration: 5000, icon: "💰" });
     // play sound
