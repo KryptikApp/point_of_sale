@@ -117,10 +117,8 @@ export function useAuth() {
         notifyClient(lastTx);
       }
     } else {
-      // ensure txs aren't old (txs from first request that may be old)
-      if (lastTxFetchTime != null) {
-        notifyClient(lastTx);
-      }
+      // todo: ensure txs aren't old (txs from first request that may be old)
+      notifyClient(lastTx);
     }
     setLastTxFetchTime(new Date());
     setTxs(newTxs);
