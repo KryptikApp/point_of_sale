@@ -123,6 +123,7 @@ export function useAuth() {
     setTxs(newTxs);
   }
 
+  // TODO: RUN CHECK ON TXS TO SEE IF THEY ARE NEW
   function notifyClient(tx: Transaction) {
     let msg = "";
     const isCkBtc = isTxCkBtc(tx);
@@ -134,14 +135,18 @@ export function useAuth() {
     } else {
       msg = `Outgoing transaction of ${formattedAmount} ${tx.ticker}`;
     }
-    // if(merchant && merchant.loggedIn && merchant.phoneNotifications){
-    //   const body = {
-    //     name: merchant.businessName,
-    //     phoneNumber: merchant.phoneNumber,
-    //     amount: formattedAmount
-    //   }
-    //   KryptikFetch("/api/notify/newTx", { body: JSON.stringify(body), method: "POST", headers: { "Content-Type": "application/json" }});
-    // }
+    if (merchant && merchant.loggedIn && merchant.phoneNotifications) {
+      const body = {
+        name: merchant.businessName,
+        phoneNumber: merchant.phoneNumber,
+        amount: formattedAmount,
+      };
+      KryptikFetch("/api/notify/newTx", {
+        body: JSON.stringify(body),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+    }
     toast.success(msg, { duration: 5000, icon: "💰" });
     // play sound
     const audio = new Audio("../sounds/txChime.mp3");
