@@ -103,9 +103,13 @@ export default function Index() {
   useEffect(() => {
     if (loadingLogin) return;
     // show logged in merchant profile page
-    if (!loading && merchant && merchant.loggedIn) {
+    if (!loading && merchant && merchant.loggedIn && merchant.businessName) {
       toast("Logging you in...", { position: "bottom-center" });
       router.push("/profile");
+    }
+    if (!loading && merchant && merchant.loggedIn && !merchant.businessName) {
+      toast("Logging you in...", { position: "bottom-center" });
+      router.push("/profile/update");
     }
     // show non logged in merchant receive page
     if (!loading && merchant && !merchant.loggedIn) {
