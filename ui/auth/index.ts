@@ -117,7 +117,10 @@ export function useAuth() {
         notifyClient(lastTx);
       }
     } else {
-      notifyClient(lastTx);
+      // ensure txs aren't old (txs from first request that may be old)
+      if (lastTxFetchTime != null) {
+        notifyClient(lastTx);
+      }
     }
     setLastTxFetchTime(new Date());
     setTxs(newTxs);
@@ -230,6 +233,8 @@ export function useAuth() {
     setAgent(null);
     // clear tx data worker
     clearDataWorkers();
+    setTxs([]);
+    setLastTxFetchTime(null);
     return success;
   }
 
@@ -317,6 +322,8 @@ export function useAuth() {
     setMerchantActor(null);
     setAuthClient(null);
     setAgent(null);
+    setTxs([]);
+    setLastTxFetchTime(null);
   }
 
   useEffect(() => {
