@@ -64,12 +64,16 @@ export function useAuth() {
         loggedIn: true,
       };
     }
+    setMerchant(newMerchant);
     // clear and initialize data workers
     clearDataWorkers();
-    initDataWorkers(newMerchant.id);
-    setMerchant(newMerchant);
     return { success: true, newMerchant };
   }
+
+  useEffect(() => {
+    if (!merchant) return;
+    initDataWorkers(merchant.id);
+  }, [merchant]);
 
   /**
    * Start data workers
@@ -136,7 +140,7 @@ export function useAuth() {
     } else {
       msg = `Outgoing transaction of ${formattedAmount} ${tx.ticker}`;
     }
-    if (merchant && merchant.loggedIn && merchant.phoneNotifications) {
+    if (merchant && merchant.phoneNumber && merchant.phoneNotifications) {
       try {
         const body = {
           name: merchant.businessName,
@@ -319,8 +323,6 @@ export function useAuth() {
   function updateLocalMerchant(newMerchant: IMerchant) {
     // clear old tx data workers
     clearDataWorkers();
-    // init new tx data workers
-    initDataWorkers(newMerchant.id);
     // update local merchant
     setMerchant(newMerchant);
     // reset auth client and backend connector which are linked to identity
