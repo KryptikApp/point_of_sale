@@ -4,6 +4,7 @@ export interface KryptikFetchRequestOpts extends RequestInit {
   params?: ConstructorParameters<typeof URLSearchParams>[0]; // type of first argument of URLSearchParams constructor.
   timeout?: number;
   dropAbortController?: boolean; // some server requests may not want to use abort controller
+  data?: any; // data to send in request body
 }
 
 export interface IKryptikFetchResponse {
@@ -36,7 +37,7 @@ export async function KryptikFetch(
     clearTimeout(id);
   }
 
-  const { body, params, headers, ...otherOpts } = opts;
+  const { body, params, headers, data, ...otherOpts } = opts;
 
   const requestBody =
     body && typeof body === "object" ? JSON.stringify(opts.body) : opts.body;
